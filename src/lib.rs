@@ -27,7 +27,7 @@ pub struct CycloneDX {
     #[serde(rename = "specVersion")]
     spec_version: &'static str,
 
-    version: &'static str
+    version: &'static str,
 }
 
 impl CycloneDX {
@@ -36,26 +36,27 @@ impl CycloneDX {
             xmlns: XML_NAMESPACE,
             bom_format: BOM_FORMAT,
             spec_version: SPEC_VERSION,
-            version: DEFAULT_VERSION
+            version: DEFAULT_VERSION,
         }
     }
 
     pub fn encode<W>(&self, writer: W) -> Result<(), CycloneDXEncodeError>
-    where W: std::io::Write {
+    where
+        W: std::io::Write,
+    {
         let result = serde_json::to_writer_pretty(writer, self);
 
         if result.is_err() {
-           return Err(CycloneDXEncodeError{});
+            return Err(CycloneDXEncodeError {});
         }
         Ok(())
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::{CycloneDX};
-    use std::io::{ErrorKind};
+    use crate::CycloneDX;
+    use std::io::ErrorKind;
 
     #[test]
     fn new_bom_has_defaults() {
@@ -106,7 +107,10 @@ mod tests {
         }"#;
 
         assert!(result.is_ok());
-        assert_eq!(remove_all_whitespace(actual.as_ref()), remove_all_whitespace(expected));
+        assert_eq!(
+            remove_all_whitespace(actual.as_ref()),
+            remove_all_whitespace(expected)
+        );
     }
 
     fn remove_all_whitespace(s: &str) -> String {
