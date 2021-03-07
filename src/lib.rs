@@ -3,7 +3,6 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
 
-const XML_NAMESPACE: &'static str = "http://cyclonedx.org/schema/bom/1.2";
 const BOM_FORMAT: &'static str = "CycloneDX";
 const SPEC_VERSION: &'static str = "1.2";
 const DEFAULT_VERSION: &'static str = "1";
@@ -18,13 +17,10 @@ impl fmt::Display for CycloneDXEncodeError {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CycloneDX {
-    xmlns: &'static str,
-
-    #[serde(rename = "bomFormat")]
     bom_format: &'static str,
 
-    #[serde(rename = "specVersion")]
     spec_version: &'static str,
 
     version: &'static str,
@@ -33,10 +29,9 @@ pub struct CycloneDX {
 impl CycloneDX {
     pub fn new() -> CycloneDX {
         CycloneDX {
-            xmlns: XML_NAMESPACE,
             bom_format: BOM_FORMAT,
             spec_version: SPEC_VERSION,
-            version: DEFAULT_VERSION,
+            version: DEFAULT_VERSION
         }
     }
 
@@ -62,7 +57,6 @@ mod tests {
     fn new_bom_has_defaults() {
         let bom = CycloneDX::new();
 
-        assert_eq!(bom.xmlns, "http://cyclonedx.org/schema/bom/1.2");
         assert_eq!(bom.bom_format, "CycloneDX");
         assert_eq!(bom.spec_version, "1.2");
         assert_eq!(bom.version, "1");
@@ -100,7 +94,6 @@ mod tests {
         let actual = String::from_utf8(vec).unwrap();
         let expected = r#"
         {
-            "xmlns": "http://cyclonedx.org/schema/bom/1.2",
             "bomFormat": "CycloneDX",
             "specVersion": "1.2",
             "version": "1"
