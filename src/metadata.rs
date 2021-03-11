@@ -20,21 +20,21 @@ pub struct Metadata {
     tools: Vec<ToolType>,
     authors: Vec<OrganizationalContact>,
     component: Option<Component>,
-    // manufacturer: Option<Vec<OrganizationalEntity>>
+    manufacturer: Vec<OrganizationalEntity>
 }
 
 impl Metadata {
     pub fn new(tools: Vec<ToolType>,
                authors: Vec<OrganizationalContact>,
                component: Option<Component>,
-               //manufacturer: Option<Vec<OrganizationalEntity>>
+               manufacturer: Vec<OrganizationalEntity>
     ) -> Metadata {
         let time_stamp: DateTime<Utc> = SystemTime::now().into();
         Metadata {
             time_stamp: time_stamp.to_rfc3339(),
             tools, authors,
             component,
-            //manufacturer
+            manufacturer
         }
     }
 }

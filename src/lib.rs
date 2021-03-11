@@ -157,7 +157,7 @@ mod tests {
             Metadata::new(Vec::new(),
                           Vec::new(),
                           None,
-                          //None
+                          Vec::new()
             )
         ));
 
@@ -272,7 +272,7 @@ mod tests {
         let metadata = Metadata::new(vec![tool],
                                      vec![author],
                                      Option::from(component),
-                                     //None
+                                     Vec::new()
         );
 
         let cyclone_dx = CycloneDX::new(Option::from(metadata));
