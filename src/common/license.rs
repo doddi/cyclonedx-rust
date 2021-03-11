@@ -1,4 +1,4 @@
-use crate::metadata::attached_text::AttachedTextType;
+use crate::common::attached_text::AttachedTextType;
 use derive_builder::Builder;
 use serde::Serialize;
 use yaserde_derive::{YaDeserialize, YaSerialize};
@@ -38,7 +38,7 @@ impl LicenseType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metadata::attached_text::*;
+    use crate::common::attached_text::*;
     use yaserde::ser::Config;
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::metadata::hash_type::HashType;
+use crate::common::hash_type::HashType;
 
 use derive_builder::Builder;
 use serde::Serialize;

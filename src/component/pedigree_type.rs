@@ -1,5 +1,5 @@
-use crate::metadata::attached_text::AttachedTextType;
-use crate::metadata::component::Component;
+use crate::common::attached_text::AttachedTextType;
+use crate::component::Component;
 use derive_builder::Builder;
 use serde::Serialize;
 use yaserde_derive::{YaDeserialize, YaSerialize};
@@ -115,10 +115,10 @@ impl IdentifiableActionType {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::metadata::classification::Classification;
-    use crate::metadata::component::*;
-    use crate::metadata::license::*;
-    use crate::metadata::pedigree_type::PedigreeType;
+    use crate::common::license::*;
+    use crate::component::classification::Classification;
+    use crate::component::pedigree_type::PedigreeType;
+    use crate::component::*;
     use yaserde::ser::Config;
 
     #[test]

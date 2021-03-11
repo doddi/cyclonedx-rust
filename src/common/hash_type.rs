@@ -33,7 +33,7 @@ impl HashType {
 
 #[cfg(test)]
 mod tests {
-    use crate::metadata::hash_type::{HashAlg, HashType};
+    use crate::common::hash_type::{HashAlg, HashType};
     use yaserde::ser::Config;
 
     #[test]

@@ -1,12 +1,19 @@
-mod metadata;
-
-use metadata::Metadata;
-use serde::Serialize;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
+
+use serde::Serialize;
 use yaserde::ser::Config;
 use yaserde_derive::YaSerialize;
+
+use crate::service::Service;
+use component::Component;
+use metadata::Metadata;
+
+mod common;
+pub mod component;
+pub mod metadata;
+pub mod service;
 
 const XMLNS: &'static str = "http://cyclonedx.org/schema/Bom/1.2";
 const BOM_FORMAT: &'static str = "CycloneDX";
@@ -47,7 +54,7 @@ impl XMLCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
             xmlns: XMLNS.to_string(),
-            cyclonedx: CycloneDX::new(None),
+            cyclonedx: CycloneDX::new(None, Vec::new(), Vec::new()),
         }
     }
 }
@@ -71,7 +78,7 @@ impl JSONCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
 
-            cyclonedx: CycloneDX::new(None),
+            cyclonedx: CycloneDX::new(None, Vec::new(), Vec::new()),
         }
     }
 }
@@ -81,11 +88,21 @@ impl JSONCycloneDX {
 #[yaserde(flatten)]
 pub struct CycloneDX {
     metadata: Option<Metadata>,
+    components: Vec<Component>,
+    service: Vec<Service>,
 }
 
 impl CycloneDX {
-    pub fn new(metadata: Option<Metadata>) -> CycloneDX {
-        CycloneDX { metadata }
+    pub fn new(
+        metadata: Option<Metadata>,
+        components: Vec<Component>,
+        service: Vec<Service>,
+    ) -> CycloneDX {
+        CycloneDX {
+            metadata,
+            components,
+            service,
+        }
     }
 
     pub fn encode<W>(
@@ -125,23 +142,24 @@ impl CycloneDX {
 
 #[cfg(test)]
 mod tests {
-    use crate::metadata::attached_text::*;
-    use crate::metadata::classification::Classification;
-    use crate::metadata::component::*;
-    use crate::metadata::hash_type::HashAlg::{Sha1, Sha256};
-    use crate::metadata::hash_type::HashType;
-    use crate::metadata::license::*;
-    use crate::metadata::organization::*;
-    use crate::metadata::scope::Scope;
-    use crate::metadata::swid::*;
+    use std::io::ErrorKind;
+
+    use crate::common::attached_text::*;
+    use crate::common::hash_type::HashAlg::{Sha1, Sha256};
+    use crate::common::hash_type::HashType;
+    use crate::common::license::*;
+    use crate::common::organization::*;
+    use crate::component::classification::Classification;
+    use crate::component::scope::Scope;
+    use crate::component::swid::*;
+    use crate::component::*;
     use crate::metadata::tool_type::{ToolType, ToolTypeBuilder};
     use crate::CycloneDXEncodeType::{JSON, XML};
     use crate::{CycloneDX, Metadata};
-    use std::io::ErrorKind;
 
     #[test]
     fn error_if_invalid_writer() {
-        let cyclone_dx = CycloneDX::new(None);
+        let cyclone_dx = CycloneDX::new(None, Vec::new(), Vec::new());
 
         impl std::io::Write for CycloneDX {
             fn write(&mut self, _buf: &[u8]) -> Result<usize, std::io::Error> {
@@ -154,7 +172,7 @@ mod tests {
         }
 
         // Used to to get access to the dummy Write trait above
-        let writer = Box::new(CycloneDX::new(None));
+        let writer = Box::new(CycloneDX::new(None, Vec::new(), Vec::new()));
         let result = CycloneDX::encode(writer, cyclone_dx, JSON);
 
         assert!(result.is_err());

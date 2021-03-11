@@ -1,22 +1,14 @@
-pub mod attached_text;
-pub mod classification;
-pub mod component;
-pub mod external_reference;
-pub mod hash_type;
-pub mod license;
-pub mod organization;
-pub mod pedigree_type;
-pub mod scope;
-pub mod swid;
-pub mod tool_type;
+use std::time::SystemTime;
 
-use crate::metadata::component::Component;
-use crate::metadata::organization::{OrganizationalContact, OrganizationalEntity};
-use crate::metadata::tool_type::ToolType;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use std::time::SystemTime;
 use yaserde_derive::YaSerialize;
+
+use crate::common::organization::{OrganizationalContact, OrganizationalEntity};
+use crate::component::Component;
+use crate::metadata::tool_type::ToolType;
+
+pub mod tool_type;
 
 #[derive(Debug, Serialize, YaSerialize)]
 pub struct Metadata {
@@ -47,9 +39,9 @@ impl Metadata {
 
 #[cfg(test)]
 mod tests {
-    use crate::metadata::hash_type::HashAlg::*;
-    use crate::metadata::hash_type::*;
-    use crate::metadata::organization::*;
+    use crate::common::hash_type::HashAlg::*;
+    use crate::common::hash_type::*;
+    use crate::common::organization::*;
     use crate::metadata::tool_type::*;
 
     #[test]

@@ -10,11 +10,15 @@ pub struct ExternalReference {
     ref_type: ExternalReferenceType,
 
     url: String,
-    comment: String,
+    comment: Option<String>,
 }
 
 impl ExternalReference {
-    pub fn new(ref_type: ExternalReferenceType, url: String, comment: String) -> ExternalReference {
+    pub fn new(
+        ref_type: ExternalReferenceType,
+        url: String,
+        comment: Option<String>,
+    ) -> ExternalReference {
         ExternalReference {
             ref_type,
             url,
@@ -57,7 +61,7 @@ mod tests {
         let expected = ExternalReference::new(
             ExternalReferenceType::Documentation,
             "http://example.org/docs".to_string(),
-            "All component versions are documented here".to_string(),
+            Option::from("All component versions are documented here".to_string()),
         );
         let parsed = yaserde::ser::to_string_with_config(
             &expected,

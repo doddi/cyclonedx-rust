@@ -1,14 +1,22 @@
-use crate::metadata::classification::Classification;
-use crate::metadata::external_reference::ExternalReference;
-use crate::metadata::hash_type::HashType;
-use crate::metadata::license::Licenses;
-use crate::metadata::pedigree_type::PedigreeType;
-use crate::metadata::scope::Scope;
-use crate::metadata::swid::SwidType;
-use crate::metadata::OrganizationalEntity;
 use derive_builder::Builder;
 use serde::Serialize;
 use yaserde_derive::{YaDeserialize, YaSerialize};
+
+use classification::Classification;
+use external_reference::ExternalReference;
+use pedigree_type::PedigreeType;
+use scope::Scope;
+use swid::SwidType;
+
+use crate::common::hash_type::HashType;
+use crate::common::license::Licenses;
+use crate::common::organization::OrganizationalEntity;
+
+pub mod classification;
+pub mod external_reference;
+pub mod pedigree_type;
+pub mod scope;
+pub mod swid;
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
 pub struct Component {
