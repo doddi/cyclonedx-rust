@@ -1,22 +1,26 @@
 use crate::common::attached_text::AttachedTextType;
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 #[serde(rename = "licenses")]
 #[yaserde(rename = "licenses")]
 pub struct Licenses {
-    license: Vec<LicenseType>,
-    expression: Option<String>,
+    pub license: Vec<LicenseType>,
+    pub expression: Option<String>,
 }
 
-#[derive(Default, Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct LicenseType {
-    id: Option<String>,
-    name: Option<String>,
-    text: Option<AttachedTextType>,
-    url: Option<String>,
+    pub id: Option<String>,
+    pub name: Option<String>,
+    pub text: Option<AttachedTextType>,
+    pub url: Option<String>,
 }
 
 impl LicenseType {

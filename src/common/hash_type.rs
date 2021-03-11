@@ -1,22 +1,7 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Debug, PartialEq, Serialize, YaSerialize, YaDeserialize)]
-#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
-pub enum HashAlg {
-    #[yaserde(rename = "SHA-1")]
-    Sha1,
-    #[yaserde(rename = "SHA-256")]
-    Sha256,
-}
-
-impl Default for HashAlg {
-    fn default() -> Self {
-        HashAlg::Sha1
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[yaserde(rename = "hash")]
 pub struct HashType {
     #[yaserde(attribute)]
@@ -28,6 +13,21 @@ pub struct HashType {
 impl HashType {
     pub fn new(alg: HashAlg, value: String) -> HashType {
         HashType { alg, value }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
+pub enum HashAlg {
+    #[yaserde(rename = "SHA-1")]
+    Sha1,
+    #[yaserde(rename = "SHA-256")]
+    Sha256,
+}
+
+impl Default for HashAlg {
+    fn default() -> Self {
+        HashAlg::Sha1
     }
 }
 

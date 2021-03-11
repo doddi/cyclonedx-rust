@@ -1,10 +1,10 @@
 use crate::common::hash_type::HashType;
 
 use derive_builder::Builder;
-use serde::Serialize;
-use yaserde_derive::YaSerialize;
+use serde::{Deserialize, Serialize};
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Debug, Builder, Serialize, YaSerialize)]
+#[derive(Debug, Builder, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct ToolType {
     pub vendor: String,
     pub name: String,

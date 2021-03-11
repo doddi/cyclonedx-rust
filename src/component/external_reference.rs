@@ -1,16 +1,16 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[serde(rename = "reference")]
 #[yaserde(rename = "reference")]
 pub struct ExternalReference {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
-    ref_type: ExternalReferenceType,
+    pub ref_type: ExternalReferenceType,
 
-    url: String,
-    comment: Option<String>,
+    pub url: String,
+    pub comment: Option<String>,
 }
 
 impl ExternalReference {
@@ -26,22 +26,38 @@ impl ExternalReference {
         }
     }
 }
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum ExternalReferenceType {
+    #[yaserde(rename = "vcs")]
     Vcs,
+    #[yaserde(rename = "issue-tracker")]
     IssueTracker,
+    #[yaserde(rename = "website")]
     Website,
+    #[yaserde(rename = "advisories")]
     Advisories,
+    #[yaserde(rename = "bom")]
     Bom,
+    #[yaserde(rename = "mailing-list")]
     MailingList,
+    #[yaserde(rename = "social")]
     Social,
+    #[yaserde(rename = "chat")]
     Chat,
+    #[yaserde(rename = "documentation")]
     Documentation,
+    #[yaserde(rename = "support")]
     Support,
+    #[yaserde(rename = "distribution")]
     Distribution,
+    #[yaserde(rename = "license")]
     License,
+    #[yaserde(rename = "build-metadata")]
     BuildMeta,
+    #[yaserde(rename = "build-system")]
     BuildSystem,
+    #[yaserde(rename = "other")]
     Other,
 }
 

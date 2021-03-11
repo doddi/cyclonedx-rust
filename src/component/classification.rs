@@ -1,5 +1,5 @@
 use heck::KebabCase;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::io::Write;
@@ -11,16 +11,24 @@ use yaserde::ser::Serializer;
 use yaserde::{YaDeserialize, YaSerialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaDeserialize, EnumString)]
-#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaDeserialize, EnumString)]
+#[serde(rename_all = "kebab-case")]
 pub enum Classification {
+    #[yaserde(rename = "required")]
     Application,
+    #[yaserde(rename = "framework")]
     Framework,
+    #[yaserde(rename = "library")]
     Library,
+    #[yaserde(rename = "container")]
     Container,
+    #[yaserde(rename = "operating-system")]
     OperatingSystem,
+    #[yaserde(rename = "device")]
     Device,
+    #[yaserde(rename = "firmware")]
     Firmware,
+    #[yaserde(rename = "file")]
     File,
 }
 

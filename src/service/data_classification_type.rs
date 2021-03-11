@@ -1,12 +1,12 @@
 use crate::service::data_flow_type::DataFlowType;
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct DataClassificationType {
     #[yaserde(attribute)]
-    flow: DataFlowType,
+    pub flow: DataFlowType,
     #[yaserde(text)]
-    value: String,
+    pub value: String,
 }

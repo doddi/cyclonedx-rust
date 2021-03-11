@@ -1,8 +1,8 @@
 use std::time::SystemTime;
 
 use chrono::{DateTime, Utc};
-use serde::Serialize;
-use yaserde_derive::YaSerialize;
+use serde::{Deserialize, Serialize};
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use crate::common::organization::{OrganizationalContact, OrganizationalEntity};
 use crate::component::Component;
@@ -10,7 +10,7 @@ use crate::metadata::tool_type::ToolType;
 
 pub mod tool_type;
 
-#[derive(Debug, Serialize, YaSerialize)]
+#[derive(Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Metadata {
     time_stamp: String,
     tools: Vec<ToolType>,

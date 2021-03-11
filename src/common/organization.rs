@@ -1,15 +1,17 @@
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct OrganizationalEntity {
     pub name: Option<String>,
     pub url: Vec<String>,
     pub contact: Vec<OrganizationalContact>,
 }
 
-#[derive(Default, Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct OrganizationalContact {
     pub name: Option<String>,
     pub email: Vec<String>,

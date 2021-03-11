@@ -1,8 +1,10 @@
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 #[yaserde(rename = "text")]
 pub struct AttachedTextType {
     #[serde(rename = "content-type")]
@@ -16,7 +18,7 @@ pub struct AttachedTextType {
     value: String,
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub enum BomEncoding {
     #[serde(rename = "base64")]
     #[yaserde(rename = "base64")]

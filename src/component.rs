@@ -1,5 +1,5 @@
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use classification::Classification;
@@ -18,7 +18,7 @@ pub mod pedigree_type;
 pub mod scope;
 pub mod swid;
 
-#[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Component {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]

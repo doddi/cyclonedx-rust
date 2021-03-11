@@ -1,10 +1,12 @@
 use crate::common::attached_text::AttachedTextType;
 use crate::component::Component;
 use derive_builder::Builder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct PedigreeType {
     ancestors: Vec<Component>,
     descendants: Vec<Component>,
@@ -14,7 +16,9 @@ pub struct PedigreeType {
     notes: Option<String>,
 }
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct PatchType {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
@@ -24,7 +28,9 @@ pub struct PatchType {
     resolves: Vec<IssueType>,
 }
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct DiffType {
     text: Option<AttachedTextType>,
     url: Option<String>,
@@ -36,7 +42,9 @@ impl DiffType {
     }
 }
 
-#[derive(Clone, Default, Builder, Debug, PartialEq, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Clone, Default, Builder, Debug, PartialEq, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct IssueType {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
@@ -49,13 +57,13 @@ pub struct IssueType {
     references: Vec<String>,
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Source {
     name: Option<String>,
     url: Option<String>,
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub enum BomIssueClassification {
     Detect,
     Enhancement,
@@ -68,7 +76,7 @@ impl Default for BomIssueClassification {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub enum BomPatchClassification {
     Unofficial,
     Monkey,
@@ -82,7 +90,9 @@ impl Default for BomPatchClassification {
     }
 }
 
-#[derive(Default, Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(
+    Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
+)]
 pub struct CommitType {
     uid: Option<String>,
     url: Option<String>,
@@ -91,7 +101,7 @@ pub struct CommitType {
     message: Option<String>,
 }
 
-#[derive(Default, Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
+#[derive(Default, Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct IdentifiableActionType {
     timestamp: Option<String>,
     name: Option<String>,

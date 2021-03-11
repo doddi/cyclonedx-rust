@@ -2,9 +2,9 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use yaserde::ser::Config;
-use yaserde_derive::YaSerialize;
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use crate::dependency_type::DependencyType;
 use crate::service::Service;
@@ -23,7 +23,7 @@ const SPEC_VERSION: &'static str = "1.2";
 const DEFAULT_VERSION: &'static str = "1";
 
 #[derive(PartialEq)]
-pub enum CycloneDXEncodeType {
+pub enum CycloneDXFormatType {
     XML,
     JSON,
 }
@@ -37,8 +37,17 @@ impl fmt::Display for CycloneDXEncodeError {
     }
 }
 
-#[yaserde(rename = "Bom", rename_all = "camelCase")]
-#[derive(YaSerialize)]
+#[derive(Debug)]
+pub struct CycloneDXDecodeError {}
+impl Error for CycloneDXDecodeError {}
+impl fmt::Display for CycloneDXDecodeError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Error decoding CycloneDX BOM")
+    }
+}
+
+#[yaserde(rename = "bom", rename_all = "camelCase")]
+#[derive(Default, YaSerialize, YaDeserialize)]
 pub struct XMLCycloneDX {
     #[yaserde(rename = "serialNumber", attribute)]
     serial_number: String,
@@ -62,7 +71,7 @@ impl XMLCycloneDX {
 }
 
 #[serde(rename_all = "camelCase")]
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct JSONCycloneDX {
     bom_format: String,
     spec_version: String,
@@ -86,7 +95,7 @@ impl JSONCycloneDX {
 }
 
 // #[serde(rename = "Bom", rename_all = "camelCase")]
-#[derive(Serialize, YaSerialize)]
+#[derive(Default, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[yaserde(flatten)]
 pub struct CycloneDX {
     metadata: Option<Metadata>,
@@ -110,16 +119,43 @@ impl CycloneDX {
         }
     }
 
+    pub fn decode<R>(
+        reader: R,
+        format: CycloneDXFormatType,
+    ) -> Result<CycloneDX, CycloneDXDecodeError>
+    where
+        R: std::io::Read,
+    {
+        let result: Result<CycloneDX, String> = match format {
+            CycloneDXFormatType::XML => {
+                let result: Result<XMLCycloneDX, String> = yaserde::de::from_reader(reader);
+                match result {
+                    Ok(response) => Ok(response.cyclonedx),
+                    Err(err) => Err(err),
+                }
+            }
+            CycloneDXFormatType::JSON => {
+                let cycloneDX: JSONCycloneDX = serde_json::from_reader(reader).unwrap();
+                Ok(cycloneDX.cyclonedx)
+            }
+        };
+
+        if result.is_err() {
+            return Err(CycloneDXDecodeError {});
+        }
+        Ok(result.unwrap())
+    }
+
     pub fn encode<W>(
         writer: W,
         dx: CycloneDX,
-        format: CycloneDXEncodeType,
+        format: CycloneDXFormatType,
     ) -> Result<(), CycloneDXEncodeError>
     where
         W: std::io::Write,
     {
         let result = match format {
-            CycloneDXEncodeType::XML => {
+            CycloneDXFormatType::XML => {
                 let mut xml: XMLCycloneDX = XMLCycloneDX::new();
                 xml.cyclonedx = dx;
                 let config: Config = Config {
@@ -131,7 +167,7 @@ impl CycloneDX {
                 Ok(())
             }
 
-            CycloneDXEncodeType::JSON => {
+            CycloneDXFormatType::JSON => {
                 let mut json: JSONCycloneDX = JSONCycloneDX::new();
                 json.cyclonedx = dx;
                 serde_json::to_writer_pretty(writer, &json)
@@ -147,10 +183,13 @@ impl CycloneDX {
 
 #[cfg(test)]
 mod tests {
-    use std::io::ErrorKind;
+    use super::*;
+    use std::io::{BufReader, ErrorKind};
 
     use crate::CycloneDX;
-    use crate::CycloneDXEncodeType::JSON;
+    use crate::CycloneDXFormatType::JSON;
+    use std::fs::File;
+    use std::path::PathBuf;
 
     #[test]
     fn error_if_invalid_writer() {
@@ -172,4 +211,21 @@ mod tests {
 
         assert!(result.is_err());
     }
+
+    // #[test]
+    // pub fn can_decode() {
+    //     let reader = setup("bom-1.2.xml");
+    //
+    //     let result = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
+    //
+    //     assert!(result.metadata.is_some());
+    // }
+    //
+    // fn setup(file: &str) -> BufReader<File> {
+    //     let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    //     test_folder.push("resources/test/".to_owned() + file);
+    //     let file = File::open(test_folder);
+    //     let mut reader = BufReader::new(file.unwrap());
+    //     reader
+    // }
 }
