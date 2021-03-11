@@ -128,8 +128,14 @@ mod tests {
     use crate::CycloneDXEncodeType::{JSON, XML};
     use crate::metadata::hash_type::HashAlg::{Sha1, Sha256};
     use crate::metadata::tool_type::{ToolType, ToolTypeBuilder};
-    use crate::metadata::{OrganizationalContact, OrganizationalContactBuilder, Component, ComponentBuilder, OrganizationalEntity, OrganizationalEntityBuilder, Classification, Scope, SwidType, SwidTypeBuilder, AttachedTextType, AttachedTextTypeBuilder, BomEncoding, Licenses, LicensesBuilder, LicenseType, LicenseTypeBuilder};
+    use crate::metadata::component::*;
+    use crate::metadata::organization::*;
+    use crate::metadata::license::*;
+    use crate::metadata::attached_text::*;
     use crate::metadata::hash_type::HashType;
+    use crate::metadata::swid::*;
+    use crate::metadata::classification::Classification;
+    use crate::metadata::scope::Scope;
 
     #[test]
     fn error_if_invalid_writer() {
