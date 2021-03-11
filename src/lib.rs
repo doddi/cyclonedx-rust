@@ -126,8 +126,10 @@ mod tests {
     use crate::{CycloneDX, Metadata};
     use std::io::ErrorKind;
     use crate::CycloneDXEncodeType::{JSON, XML};
-    use crate::metadata::HashAlg::{Sha1, Sha256};
-    use crate::metadata::{HashType, ToolType, ToolTypeBuilder, OrganizationalContact, OrganizationalContactBuilder, Component, ComponentBuilder, OrganizationalEntity, OrganizationalEntityBuilder, Classification, Scope, SwidType, SwidTypeBuilder, AttachedTextType, AttachedTextTypeBuilder, BomEncoding, Licenses, LicensesBuilder, LicenseType, LicenseTypeBuilder};
+    use crate::metadata::hash_type::HashAlg::{Sha1, Sha256};
+    use crate::metadata::tool_type::{ToolType, ToolTypeBuilder};
+    use crate::metadata::{OrganizationalContact, OrganizationalContactBuilder, Component, ComponentBuilder, OrganizationalEntity, OrganizationalEntityBuilder, Classification, Scope, SwidType, SwidTypeBuilder, AttachedTextType, AttachedTextTypeBuilder, BomEncoding, Licenses, LicensesBuilder, LicenseType, LicenseTypeBuilder};
+    use crate::metadata::hash_type::HashType;
 
     #[test]
     fn error_if_invalid_writer() {

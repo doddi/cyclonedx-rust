@@ -1,3 +1,6 @@
+pub mod hash_type;
+pub mod tool_type;
+
 use std::fmt::{Display, Formatter};
 use chrono::{DateTime, Utc};
 use std::time::SystemTime;
@@ -11,8 +14,7 @@ use xml::attribute::OwnedAttribute;
 use xml::namespace::Namespace;
 use yaserde::ser::Serializer;
 use xml::writer::XmlEvent;
-use xml::name::OwnedName;
-
+use crate::metadata::tool_type::ToolType;
 
 #[derive(Debug, Serialize, YaSerialize)]
 pub struct Metadata {
@@ -44,52 +46,6 @@ pub struct OrganizationalEntity {
     name: Option<String>,
     url: Vec<String>,
     contact: Vec<OrganizationalContact>
-}
-
-#[derive(Debug, Builder, Serialize, YaSerialize)]
-pub struct ToolType {
-    vendor: String,
-    name: String,
-    version: String,
-    hashes: Vec<HashType>
-}
-
-impl ToolType {
-    pub fn new(vendor: String, name: String, version: String, hashes: Vec<HashType>) -> ToolType {
-        ToolType { vendor, name, version, hashes }
-    }
-}
-
-
-#[derive(Clone, Debug, PartialEq, Serialize, YaSerialize)]
-pub enum HashAlg {
-    Sha1,
-    Sha256
-}
-
-impl Display for HashAlg {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            HashAlg::Sha1 => write!(f, "SHA-1"),
-            HashAlg::Sha256 => write!(f, "SHA-256")
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, YaSerialize)]
-pub struct HashType {
-    #[yaserde(attribute)]
-    alg: HashAlg,
-    value: String
-}
-
-impl HashType {
-    pub fn new(alg: HashAlg, value: String) -> HashType {
-        HashType {
-            alg,
-            value
-        }
-    }
 }
 
 #[derive(Default, Clone, Builder, PartialEq, Debug, Serialize, YaSerialize)]
@@ -127,7 +83,7 @@ pub struct Component {
     version: Option<String>,
     description: Option<String>,
     scope: Option<Scope>,
-    hashes: Vec<HashType>,
+    hashes: Vec<hash_type::HashType>,
     licenses: Vec<Licenses>,
     copyright: Option<String>,
     purl: Option<String>,
@@ -430,7 +386,9 @@ impl IdentifiableActionType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::metadata::HashAlg::{Sha1, Sha256};
+    use crate::metadata::hash_type::HashType;
+    use crate::metadata::hash_type::HashAlg::{Sha1, Sha256};
+    use crate::metadata::tool_type::{ToolType, ToolTypeBuilder};
 
     #[test]
     fn tool_builder() {
