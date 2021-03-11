@@ -1,20 +1,20 @@
-use serde::{Serialize};
+use serde::Serialize;
 use yaserde_derive::YaSerialize;
 
-use std::fmt::{Display, Formatter};
 use std::fmt;
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Serialize, YaSerialize)]
 pub enum HashAlg {
     Sha1,
-    Sha256
+    Sha256,
 }
 
 impl Display for HashAlg {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             HashAlg::Sha1 => write!(f, "SHA-1"),
-            HashAlg::Sha256 => write!(f, "SHA-256")
+            HashAlg::Sha256 => write!(f, "SHA-256"),
         }
     }
 }
@@ -23,14 +23,11 @@ impl Display for HashAlg {
 pub struct HashType {
     #[yaserde(attribute)]
     pub alg: HashAlg,
-    pub value: String
+    pub value: String,
 }
 
 impl HashType {
     pub fn new(alg: HashAlg, value: String) -> HashType {
-        HashType {
-            alg,
-            value
-        }
+        HashType { alg, value }
     }
 }

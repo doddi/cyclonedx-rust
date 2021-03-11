@@ -1,7 +1,7 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use derive_builder::{Builder};
 use crate::metadata::attached_text::AttachedTextType;
+use derive_builder::Builder;
+use serde::Serialize;
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct SwidType {
@@ -23,5 +23,5 @@ pub struct SwidType {
     patch: Option<bool>,
 
     text: Option<AttachedTextType>,
-    url: Option<String>
+    url: Option<String>,
 }

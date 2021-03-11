@@ -1,10 +1,10 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use derive_builder::{Builder};
-use crate::metadata::component::Component;
 use crate::metadata::attached_text::AttachedTextType;
-use std::fmt::{Display, Formatter};
+use crate::metadata::component::Component;
+use derive_builder::Builder;
+use serde::Serialize;
 use std::fmt;
+use std::fmt::{Display, Formatter};
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct PedigreeType {
@@ -13,7 +13,7 @@ pub struct PedigreeType {
     variants: Vec<Component>,
     commits: Vec<CommitType>,
     patches: Vec<PatchType>,
-    notes: Option<String>
+    notes: Option<String>,
 }
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
@@ -23,18 +23,18 @@ pub struct PatchType {
     patchtype_type: BomPatchClassification,
 
     diff: Option<DiffType>,
-    resolves: Vec<IssueType>
+    resolves: Vec<IssueType>,
 }
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct DiffType {
     text: Option<AttachedTextType>,
-    url: Option<String>
+    url: Option<String>,
 }
 
 impl DiffType {
     pub fn new(text: Option<AttachedTextType>, url: Option<String>) {
-        DiffType {text, url };
+        DiffType { text, url };
     }
 }
 
@@ -48,19 +48,20 @@ pub struct IssueType {
     name: Option<String>,
     description: Option<String>,
     source: Option<Source>,
-    references: Vec<String>
+    references: Vec<String>,
 }
-
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct Source {
     name: Option<String>,
-    url: Option<String>
+    url: Option<String>,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub enum BomIssueClassification {
-    Detect, Enhancement, Security
+    Detect,
+    Enhancement,
+    Security,
 }
 
 impl Default for BomIssueClassification {
@@ -81,7 +82,10 @@ impl Display for BomIssueClassification {
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub enum BomPatchClassification {
-    Unofficial, Monkey, Backport, CherryPick
+    Unofficial,
+    Monkey,
+    Backport,
+    CherryPick,
 }
 
 impl Default for BomPatchClassification {
@@ -96,7 +100,7 @@ impl Display for BomPatchClassification {
             BomPatchClassification::Unofficial => write!(f, "unofficial"),
             BomPatchClassification::Monkey => write!(f, "monkey"),
             BomPatchClassification::Backport => write!(f, "backport"),
-            BomPatchClassification::CherryPick => write!(f, "cherry-pick")
+            BomPatchClassification::CherryPick => write!(f, "cherry-pick"),
         }
     }
 }
@@ -107,18 +111,26 @@ pub struct CommitType {
     url: Option<String>,
     author: Option<IdentifiableActionType>,
     committer: Option<IdentifiableActionType>,
-    message: Option<String>
+    message: Option<String>,
 }
 
 #[derive(Default, Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct IdentifiableActionType {
     timestamp: Option<String>,
     name: Option<String>,
-    email: Option<String>
+    email: Option<String>,
 }
 
 impl IdentifiableActionType {
-    pub fn new(timestamp: Option<String>, name: Option<String>, email: Option<String>) -> IdentifiableActionType {
-        IdentifiableActionType { timestamp, name, email }
+    pub fn new(
+        timestamp: Option<String>,
+        name: Option<String>,
+        email: Option<String>,
+    ) -> IdentifiableActionType {
+        IdentifiableActionType {
+            timestamp,
+            name,
+            email,
+        }
     }
 }

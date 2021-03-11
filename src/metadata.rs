@@ -1,22 +1,22 @@
-pub mod hash_type;
-pub mod tool_type;
-pub mod component;
-pub mod organization;
-pub mod license;
 pub mod attached_text;
-pub mod swid;
-pub mod pedigree_type;
-pub mod external_reference;
 pub mod classification;
+pub mod component;
+pub mod external_reference;
+pub mod hash_type;
+pub mod license;
+pub mod organization;
+pub mod pedigree_type;
 pub mod scope;
+pub mod swid;
+pub mod tool_type;
 
-use chrono::{DateTime, Utc};
-use std::time::SystemTime;
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use crate::metadata::tool_type::ToolType;
 use crate::metadata::component::Component;
 use crate::metadata::organization::{OrganizationalContact, OrganizationalEntity};
+use crate::metadata::tool_type::ToolType;
+use chrono::{DateTime, Utc};
+use serde::Serialize;
+use std::time::SystemTime;
+use yaserde_derive::YaSerialize;
 
 #[derive(Debug, Serialize, YaSerialize)]
 pub struct Metadata {
@@ -24,31 +24,33 @@ pub struct Metadata {
     tools: Vec<ToolType>,
     authors: Vec<OrganizationalContact>,
     component: Option<Component>,
-    manufacturer: Vec<OrganizationalEntity>
+    manufacturer: Vec<OrganizationalEntity>,
 }
 
 impl Metadata {
-    pub fn new(tools: Vec<ToolType>,
-               authors: Vec<OrganizationalContact>,
-               component: Option<Component>,
-               manufacturer: Vec<OrganizationalEntity>
+    pub fn new(
+        tools: Vec<ToolType>,
+        authors: Vec<OrganizationalContact>,
+        component: Option<Component>,
+        manufacturer: Vec<OrganizationalEntity>,
     ) -> Metadata {
         let time_stamp: DateTime<Utc> = SystemTime::now().into();
         Metadata {
             time_stamp: time_stamp.to_rfc3339(),
-            tools, authors,
+            tools,
+            authors,
             component,
-            manufacturer
+            manufacturer,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::metadata::hash_type::HashAlg::*;
     use crate::metadata::hash_type::*;
     use crate::metadata::organization::*;
     use crate::metadata::tool_type::*;
-    use crate::metadata::hash_type::HashAlg::*;
 
     #[test]
     fn tool_builder() {
@@ -57,8 +59,15 @@ mod tests {
             .name("name".to_string())
             .version("version".to_string())
             .vendor("vendor".to_string())
-            .hashes([ HashType::new(Sha1, "1234567890".to_string()), HashType::new(Sha256, "0987654321".to_string())].to_vec())
-            .build().unwrap();
+            .hashes(
+                [
+                    HashType::new(Sha1, "1234567890".to_string()),
+                    HashType::new(Sha256, "0987654321".to_string()),
+                ]
+                .to_vec(),
+            )
+            .build()
+            .unwrap();
 
         assert_eq!(tool.name, "name");
         assert_eq!(tool.version, "version");
@@ -77,7 +86,8 @@ mod tests {
             .name(Some("name".to_owned()))
             .phone(["phone".to_owned()].to_vec())
             .email(["email".to_owned()].to_vec())
-            .build().unwrap();
+            .build()
+            .unwrap();
 
         assert_eq!(author.name, Some(String::from("name")));
         assert_eq!(author.email, [String::from("email")].to_vec());

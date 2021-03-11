@@ -1,17 +1,17 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use derive_builder::{Builder};
-use std::fmt::{Display, Formatter};
-use std::fmt;
-use crate::metadata::{OrganizationalEntity};
+use crate::metadata::attached_text::AttachedTextType;
+use crate::metadata::classification::Classification;
+use crate::metadata::external_reference::ExternalReference;
 use crate::metadata::hash_type::HashType;
 use crate::metadata::license::Licenses;
-use crate::metadata::attached_text::AttachedTextType;
-use crate::metadata::swid::SwidType;
 use crate::metadata::pedigree_type::PedigreeType;
-use crate::metadata::external_reference::ExternalReference;
-use crate::metadata::classification::Classification;
 use crate::metadata::scope::Scope;
+use crate::metadata::swid::SwidType;
+use crate::metadata::OrganizationalEntity;
+use derive_builder::Builder;
+use serde::Serialize;
+use std::fmt;
+use std::fmt::{Display, Formatter};
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct Component {
@@ -43,6 +43,5 @@ pub struct Component {
     modified: Option<bool>,
     pedigree: Option<PedigreeType>,
     external_references: Vec<ExternalReference>,
-    components: Vec<Component>
+    components: Vec<Component>,
 }
-

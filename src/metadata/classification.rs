@@ -1,12 +1,19 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use derive_builder::{Builder};
-use std::fmt::{Display, Formatter};
+use derive_builder::Builder;
+use serde::Serialize;
 use std::fmt;
+use std::fmt::{Display, Formatter};
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub enum Classification {
-    Application, Framework, Library, Container, OperatingSystem, Device, Firmware, File
+    Application,
+    Framework,
+    Library,
+    Container,
+    OperatingSystem,
+    Device,
+    Firmware,
+    File,
 }
 
 impl Display for Classification {

@@ -1,7 +1,7 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use std::fmt::{Display, Formatter};
+use serde::Serialize;
 use std::fmt;
+use std::fmt::{Display, Formatter};
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct ExternalReference {
@@ -10,7 +10,7 @@ pub struct ExternalReference {
     externalref_type: ExternalReferenceType,
 
     url: String,
-    comment: String
+    comment: String,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
@@ -29,7 +29,7 @@ pub enum ExternalReferenceType {
     License,
     BuildMeta,
     BuildSystem,
-    Other
+    Other,
 }
 
 impl Display for ExternalReferenceType {
@@ -49,7 +49,7 @@ impl Display for ExternalReferenceType {
             ExternalReferenceType::License => write!(f, "License"),
             ExternalReferenceType::BuildMeta => write!(f, "build-meta"),
             ExternalReferenceType::BuildSystem => write!(f, "build-system"),
-            ExternalReferenceType::Other => write!(f, "Other")
+            ExternalReferenceType::Other => write!(f, "Other"),
         }
     }
 }

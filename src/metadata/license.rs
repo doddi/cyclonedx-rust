@@ -1,12 +1,12 @@
-use serde::{Serialize};
-use yaserde_derive::YaSerialize;
-use derive_builder::{Builder};
 use crate::metadata::attached_text::AttachedTextType;
+use derive_builder::Builder;
+use serde::Serialize;
+use yaserde_derive::YaSerialize;
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
 pub struct Licenses {
     license: Vec<LicenseType>,
-    expression: Option<String>
+    expression: Option<String>,
 }
 
 #[derive(Default, Clone, Builder, PartialEq, Debug, Serialize, YaSerialize)]
@@ -18,7 +18,17 @@ pub struct LicenseType {
 }
 
 impl LicenseType {
-    pub fn new(id: Option<String>, name: Option<String>, text: Option<AttachedTextType>, url: Option<String>) -> LicenseType {
-        LicenseType { id, name, text, url }
+    pub fn new(
+        id: Option<String>,
+        name: Option<String>,
+        text: Option<AttachedTextType>,
+        url: Option<String>,
+    ) -> LicenseType {
+        LicenseType {
+            id,
+            name,
+            text,
+            url,
+        }
     }
 }
