@@ -6,3 +6,11 @@
 cyclonedx-rust is a simple library to encode/decode CycloneDX BOM
 
 
+You can encode and decode from any reader type using the methods:
+
+Decoding:
+`CycloneDX::decode(reader: R, format: CycloneDXFormatType,) -> Result<CycloneDX, CycloneDXDecodeError>`
+
+
+Encoding:
+`CycloneDX::encode<(writer: W, dx: CycloneDX, format: CycloneDXFormatType,) -> Result<(), CycloneDXEncodeError>`
