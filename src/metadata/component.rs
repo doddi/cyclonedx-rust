@@ -1,4 +1,3 @@
-use crate::metadata::attached_text::AttachedTextType;
 use crate::metadata::classification::Classification;
 use crate::metadata::external_reference::ExternalReference;
 use crate::metadata::hash_type::HashType;
@@ -9,11 +8,9 @@ use crate::metadata::swid::SwidType;
 use crate::metadata::OrganizationalEntity;
 use derive_builder::Builder;
 use serde::Serialize;
-use std::fmt;
-use std::fmt::{Display, Formatter};
-use yaserde_derive::YaSerialize;
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize)]
+#[derive(Clone, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
 pub struct Component {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]

@@ -1,16 +1,7 @@
-use heck::KebabCase;
 use serde::Serialize;
-use std::fmt;
-use std::fmt::{Display, Formatter};
-use std::io::Write;
-use xml::attribute::OwnedAttribute;
-use xml::namespace::Namespace;
-use xml::writer::XmlEvent;
-use yaserde::ser::Serializer;
-use yaserde::YaSerialize;
-use yaserde_derive::YaSerialize;
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
 #[serde(rename = "reference")]
 #[yaserde(rename = "reference")]
 pub struct ExternalReference {
@@ -31,7 +22,7 @@ impl ExternalReference {
         }
     }
 }
-#[derive(Clone, PartialEq, Debug, Serialize)]
+#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
 pub enum ExternalReferenceType {
     Vcs,
     IssueTracker,
@@ -50,24 +41,9 @@ pub enum ExternalReferenceType {
     Other,
 }
 
-impl Display for ExternalReferenceType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-impl YaSerialize for ExternalReferenceType {
-    fn serialize<W: Write>(&self, writer: &mut Serializer<W>) -> Result<(), String> {
-        let data = self.to_string();
-        writer.write(XmlEvent::characters(&data.to_kebab_case()));
-        Ok(())
-    }
-
-    fn serialize_attributes(
-        &self,
-        attributes: Vec<OwnedAttribute>,
-        namespace: Namespace,
-    ) -> Result<(Vec<OwnedAttribute>, Namespace), String> {
-        Ok((attributes, namespace))
+impl Default for ExternalReferenceType {
+    fn default() -> Self {
+        ExternalReferenceType::Other
     }
 }
 
@@ -78,15 +54,13 @@ mod tests {
 
     #[test]
     fn print_xml() {
-        let expected = r#"<reference type="documentation"><url>http://example.org/docs</url><comment>All component versions are documented here</comment></reference>"#;
-
-        let model = ExternalReference::new(
+        let expected = ExternalReference::new(
             ExternalReferenceType::Documentation,
             "http://example.org/docs".to_string(),
             "All component versions are documented here".to_string(),
         );
-        let actual = yaserde::ser::to_string_with_config(
-            &model,
+        let parsed = yaserde::ser::to_string_with_config(
+            &expected,
             &Config {
                 perform_indent: false,
                 write_document_declaration: false,
@@ -94,6 +68,8 @@ mod tests {
             },
         )
         .unwrap();
+
+        let actual: ExternalReference = yaserde::de::from_str(parsed.as_str()).unwrap();
 
         assert_eq!(expected, actual);
     }

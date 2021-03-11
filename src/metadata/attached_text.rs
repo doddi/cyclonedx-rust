@@ -1,13 +1,5 @@
 use derive_builder::Builder;
 use serde::Serialize;
-use std::fmt;
-use std::fmt::{Display, Formatter};
-use std::io::Write;
-use xml::attribute::OwnedAttribute;
-use xml::namespace::Namespace;
-use xml::writer::XmlEvent;
-use yaserde::ser::Serializer;
-use yaserde::YaSerialize;
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 #[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]

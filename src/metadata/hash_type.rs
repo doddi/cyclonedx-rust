@@ -1,11 +1,6 @@
 use serde::Serialize;
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-use std::borrow::Cow;
-use std::fmt;
-use std::fmt::{Display, Formatter};
-use std::io::Write;
-
 #[derive(Clone, Debug, PartialEq, Serialize, YaSerialize, YaDeserialize)]
 #[serde(rename_all = "SCREAMING-KEBAB-CASE")]
 pub enum HashAlg {

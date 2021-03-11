@@ -1,9 +1,9 @@
 use crate::metadata::attached_text::AttachedTextType;
 use derive_builder::Builder;
 use serde::Serialize;
-use yaserde_derive::YaSerialize;
+use yaserde_derive::{YaDeserialize, YaSerialize};
 
-#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize)]
+#[derive(Clone, Default, Builder, PartialEq, Debug, Serialize, YaSerialize, YaDeserialize)]
 pub struct SwidType {
     #[serde(rename = "tagId")]
     #[yaserde(rename = "tagId", attribute)]
