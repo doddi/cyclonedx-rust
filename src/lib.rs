@@ -1,13 +1,14 @@
+mod metadata;
+
 use serde::{Serialize};
 use std::error::Error;
 use std::fmt;
-use std::fmt::Formatter;
 use yaserde_derive::YaSerialize;
 use yaserde::ser::Config;
-use std::time::SystemTime;
-use chrono::{DateTime, Utc};
+use metadata::Metadata;
+use std::fmt::Formatter;
 
-const XMLNS: &'static str = "http://cyclonedx.org/schema/bom/1.2";
+const XMLNS: &'static str = "http://cyclonedx.org/schema/Bom/1.2";
 const BOM_FORMAT: &'static str = "CycloneDX";
 const SPEC_VERSION: &'static str = "1.2";
 const DEFAULT_VERSION: &'static str = "1";
@@ -26,8 +27,8 @@ impl fmt::Display for CycloneDXEncodeError {
     }
 }
 
-#[yaserde(rename = "bom", rename_all = "camelCase")]
-#[derive(Default, PartialEq, Debug, YaSerialize)]
+#[yaserde(rename = "Bom", rename_all = "camelCase")]
+#[derive(YaSerialize)]
 pub struct XMLCycloneDX {
     #[yaserde(rename = "serialNumber", attribute)]
     serial_number: String,
@@ -45,14 +46,14 @@ impl XMLCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
             xmlns: XMLNS.to_string(),
-            cyclonedx: Default::default()
+            cyclonedx: CycloneDX::new(None)
         }
     }
 }
 
 
 #[serde(rename_all = "camelCase")]
-#[derive(Default, PartialEq, Debug, Serialize)]
+#[derive(Serialize)]
 pub struct JSONCycloneDX {
     bom_format: String,
     spec_version: String,
@@ -70,35 +71,22 @@ impl JSONCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
 
-            cyclonedx: Default::default()
+            cyclonedx: CycloneDX::new(None)
         }
     }
 }
 
-#[derive(PartialEq, Debug, Serialize, YaSerialize)]
-pub struct Metadata {
-    time_stamp: String
-}
-
-impl Metadata {
-    pub fn new() -> Metadata {
-        let time_stamp: DateTime<Utc> = SystemTime::now().into();
-        Metadata {
-            time_stamp: time_stamp.to_rfc3339()
-        }
-    }
-}
-// #[serde(rename = "bom", rename_all = "camelCase")]
-#[derive(Default, PartialEq, Debug, Serialize, YaSerialize)]
+// #[serde(rename = "Bom", rename_all = "camelCase")]
+#[derive(Serialize, YaSerialize)]
 #[yaserde(flatten)]
 pub struct CycloneDX {
     metadata: Option<Metadata>,
 }
 
 impl CycloneDX {
-    pub fn new() -> CycloneDX {
+    pub fn new(metadata: Option<Metadata>) -> CycloneDX {
         CycloneDX {
-            metadata: None
+            metadata
         }
     }
 
@@ -138,17 +126,12 @@ mod tests {
     use crate::{CycloneDX, Metadata};
     use std::io::ErrorKind;
     use crate::CycloneDXEncodeType::{JSON, XML};
-
-    // #[test]
-    // fn new_bom_has_defaults() {
-    //     let bom = CycloneDX::new();
-    //
-    //     assert_eq!(bom.version, "1");
-    // }
+    use crate::metadata::HashAlg::{Sha1, Sha256};
+    use crate::metadata::{HashType, ToolType, ToolTypeBuilder, OrganizationalContact, OrganizationalContactBuilder, Component, ComponentBuilder, OrganizationalEntity, OrganizationalEntityBuilder, Classification, Scope, SwidType, SwidTypeBuilder, AttachedTextType, AttachedTextTypeBuilder, BomEncoding, Licenses, LicensesBuilder, LicenseType, LicenseTypeBuilder};
 
     #[test]
     fn error_if_invalid_writer() {
-        let cyclone_dx = CycloneDX::new();
+        let cyclone_dx = CycloneDX::new(None);
 
         impl std::io::Write for CycloneDX {
             fn write(&mut self, _buf: &[u8]) -> Result<usize, std::io::Error> {
@@ -161,7 +144,7 @@ mod tests {
         }
 
         // Used to to get access to the dummy Write trait above
-        let writer = Box::new(CycloneDX::new());
+        let writer = Box::new(CycloneDX::new(None));
         let result = CycloneDX::encode(writer, cyclone_dx, JSON);
 
         assert!(result.is_err());
@@ -170,8 +153,13 @@ mod tests {
     #[test]
     fn can_serialize_json() {
         let mut vec = Vec::new();
-        let mut cyclone_dx = CycloneDX::new();
-        cyclone_dx.metadata = Option::from(Metadata::new());
+        let cyclone_dx = CycloneDX::new(Option::from(
+            Metadata::new(Vec::new(),
+                          Vec::new(),
+                          None,
+                          //None
+            )
+        ));
 
         let result = CycloneDX::encode(&mut vec, cyclone_dx, JSON);
 
@@ -197,15 +185,104 @@ mod tests {
     #[test]
     fn can_serialize_xml() {
         let mut vec = Vec::new();
-        let mut cyclone_dx = CycloneDX::new();
-        cyclone_dx.metadata = Option::from(Metadata::new());
+
+        let hashes: Vec<HashType> = vec![
+            HashType::new(Sha1, "1234567890".to_string()),
+            HashType::new(Sha256, "0987654321".to_string())
+        ];
+
+        let tool: ToolType = ToolTypeBuilder::default()
+            .vendor("foo".to_string())
+            .name("bar".to_string())
+            .version("1".to_string())
+            .hashes(hashes)
+            .build()
+            .unwrap();
+
+        let author: OrganizationalContact = OrganizationalContactBuilder::default()
+            .name(Some("name".to_owned()))
+            .phone(["phone".to_owned()].to_vec())
+            .email(["email".to_owned()].to_vec())
+            .build().unwrap();
+
+        let contact: OrganizationalContact = OrganizationalContact::new(Option::from("contactName".to_string()), ["email".to_string()].to_vec(), ["phone".to_string()].to_vec());
+        let swid: SwidType = SwidTypeBuilder::default()
+            .tag_id("tagid".to_string())
+            .name("name".to_string())
+            .version(Option::from("version".to_string()))
+            .tag_version(Option::from(123))
+            .patch(Option::from(false))
+            .text(Option::from(
+                AttachedTextTypeBuilder::default()
+                    .content_type(Option::from("json".to_string()))
+                    .encoding(Option::from(BomEncoding::Base64))
+                    .value("value".to_string())
+                    .build()
+                    .unwrap()
+            ))
+            .url(Option::from("url".to_string()))
+            .build()
+            .unwrap();
+
+        let component: Component = ComponentBuilder::default()
+            .component_type(Classification::Application)
+            .mime_type(Option::from("mime".to_string()))
+            .bom_ref(Option::from("bom_ref".to_string()))
+            .supplier(Option::from(
+                OrganizationalEntityBuilder::default()
+                    .name(Option::from("name".to_string()))
+                    .url(["url".to_string()].to_vec())
+                    .contact([contact].to_vec())
+                    .build()
+                    .unwrap()
+            ))
+            .author(Option::from("Author name".to_string()))
+            .publisher(Option::from("publisher".to_string()))
+            .group(Option::from("group".to_string()))
+            .name(Option::from("name".to_string()))
+            .version(Option::from("version".to_string()))
+            .description(Option::from("description".to_string()))
+            .scope(Option::from(Scope::Required))
+            .hashes(Vec::new())
+            .licenses(vec![
+                LicensesBuilder::default()
+                    .license(vec![
+                        LicenseTypeBuilder::default()
+                            .id(Option::from("license_id".to_string()))
+                            .name(Option::from("license_name". to_string()))
+                            .text(None)
+                            .url(None)
+                            .build()
+                            .unwrap()
+                    ])
+                    .expression(None)
+                    .build()
+                    .unwrap()
+            ])
+            .copyright(Option::from("copyright".to_string()))
+            .purl(Option::from("purl".to_string()))
+            .swid(Option::from(swid))
+            .modified(Option::from(true))
+            .pedigree(None)
+            .external_references(Vec::new())
+            .components(Vec::new())
+            .build()
+            .unwrap();
+
+        let metadata = Metadata::new(vec![tool],
+                                     vec![author],
+                                     Option::from(component),
+                                     //None
+        );
+
+        let cyclone_dx = CycloneDX::new(Option::from(metadata));
 
         let result = CycloneDX::encode(&mut vec, cyclone_dx, XML);
 
         let actual = String::from_utf8(vec).unwrap();
         let expected = r#"
-        <bom version="1">
-        <bom>"#;
+        <Bom version="1">
+        <Bom>"#;
 
         assert!(result.is_ok());
         assert_eq!(actual, expected);
