@@ -1,19 +1,37 @@
+use heck::KebabCase;
 use serde::Serialize;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use std::io::Write;
+use xml::attribute::OwnedAttribute;
+use xml::namespace::Namespace;
+use xml::writer::XmlEvent;
+use yaserde::ser::Serializer;
+use yaserde::YaSerialize;
 use yaserde_derive::YaSerialize;
 
 #[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
+#[serde(rename = "reference")]
+#[yaserde(rename = "reference")]
 pub struct ExternalReference {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
-    externalref_type: ExternalReferenceType,
+    ref_type: ExternalReferenceType,
 
     url: String,
     comment: String,
 }
 
-#[derive(Clone, PartialEq, Debug, Serialize, YaSerialize)]
+impl ExternalReference {
+    pub fn new(ref_type: ExternalReferenceType, url: String, comment: String) -> ExternalReference {
+        ExternalReference {
+            ref_type,
+            url,
+            comment,
+        }
+    }
+}
+#[derive(Clone, PartialEq, Debug, Serialize)]
 pub enum ExternalReferenceType {
     Vcs,
     IssueTracker,
@@ -34,22 +52,49 @@ pub enum ExternalReferenceType {
 
 impl Display for ExternalReferenceType {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            ExternalReferenceType::Vcs => write!(f, "Vcs"),
-            ExternalReferenceType::IssueTracker => write!(f, "issue-tracker"),
-            ExternalReferenceType::Website => write!(f, "Website"),
-            ExternalReferenceType::Advisories => write!(f, "Advisories"),
-            ExternalReferenceType::Bom => write!(f, "Bom"),
-            ExternalReferenceType::MailingList => write!(f, "mailing-list"),
-            ExternalReferenceType::Social => write!(f, "Social"),
-            ExternalReferenceType::Chat => write!(f, "Chat"),
-            ExternalReferenceType::Documentation => write!(f, "Documentation"),
-            ExternalReferenceType::Support => write!(f, "Support"),
-            ExternalReferenceType::Distribution => write!(f, "Distribution"),
-            ExternalReferenceType::License => write!(f, "License"),
-            ExternalReferenceType::BuildMeta => write!(f, "build-meta"),
-            ExternalReferenceType::BuildSystem => write!(f, "build-system"),
-            ExternalReferenceType::Other => write!(f, "Other"),
-        }
+        write!(f, "{:?}", self)
+    }
+}
+impl YaSerialize for ExternalReferenceType {
+    fn serialize<W: Write>(&self, writer: &mut Serializer<W>) -> Result<(), String> {
+        let data = self.to_string();
+        writer.write(XmlEvent::characters(&data.to_kebab_case()));
+        Ok(())
+    }
+
+    fn serialize_attributes(
+        &self,
+        attributes: Vec<OwnedAttribute>,
+        namespace: Namespace,
+    ) -> Result<(Vec<OwnedAttribute>, Namespace), String> {
+        Ok((attributes, namespace))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use yaserde::ser::Config;
+
+    #[test]
+    fn print_xml() {
+        let expected = r#"<reference type="documentation"><url>http://example.org/docs</url><comment>All component versions are documented here</comment></reference>"#;
+
+        let model = ExternalReference::new(
+            ExternalReferenceType::Documentation,
+            "http://example.org/docs".to_string(),
+            "All component versions are documented here".to_string(),
+        );
+        let actual = yaserde::ser::to_string_with_config(
+            &model,
+            &Config {
+                perform_indent: false,
+                write_document_declaration: false,
+                indent_string: None,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(expected, actual);
     }
 }
