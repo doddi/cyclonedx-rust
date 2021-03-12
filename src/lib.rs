@@ -7,7 +7,7 @@ use yaserde::ser::Config;
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use crate::dependency_type::DependencyType;
-use crate::service::Service;
+use crate::service::Services;
 use component::Component;
 use metadata::Metadata;
 
@@ -53,9 +53,9 @@ pub struct XMLCycloneDX {
     serial_number: String,
     #[yaserde(attribute)]
     version: String,
-    #[yaserde(attribute)]
-    xmlns: String,
-
+    // #[yaserde(attribute)]
+    // xmlns: String,
+    #[yaserde(flatten)]
     cyclonedx: CycloneDX,
 }
 
@@ -64,8 +64,8 @@ impl XMLCycloneDX {
         XMLCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
-            xmlns: XMLNS.to_string(),
-            cyclonedx: CycloneDX::new(None, Vec::new(), Vec::new(), Vec::new()),
+            // xmlns: XMLNS.to_string(),
+            cyclonedx: CycloneDX::new(None, None, None, Vec::new()),
         }
     }
 }
@@ -89,32 +89,31 @@ impl JSONCycloneDX {
             serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
             version: DEFAULT_VERSION.to_string(),
 
-            cyclonedx: CycloneDX::new(None, Vec::new(), Vec::new(), Vec::new()),
+            cyclonedx: CycloneDX::new(None, None, None, Vec::new()),
         }
     }
 }
 
-// #[serde(rename = "Bom", rename_all = "camelCase")]
 #[derive(Default, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[yaserde(flatten)]
 pub struct CycloneDX {
     metadata: Option<Metadata>,
-    components: Vec<Component>,
-    service: Vec<Service>,
+    components: Option<Components>,
+    services: Option<Services>,
     dependencies: Vec<DependencyType>,
 }
 
 impl CycloneDX {
     pub fn new(
         metadata: Option<Metadata>,
-        components: Vec<Component>,
-        service: Vec<Service>,
+        components: Option<Components>,
+        services: Option<Services>,
         dependencies: Vec<DependencyType>,
     ) -> CycloneDX {
         CycloneDX {
             metadata,
             components,
-            service,
+            services,
             dependencies,
         }
     }
@@ -135,8 +134,8 @@ impl CycloneDX {
                 }
             }
             CycloneDXFormatType::JSON => {
-                let cycloneDX: JSONCycloneDX = serde_json::from_reader(reader).unwrap();
-                Ok(cycloneDX.cyclonedx)
+                let cyclone_dx: JSONCycloneDX = serde_json::from_reader(reader).unwrap();
+                Ok(cyclone_dx.cyclonedx)
             }
         };
 
@@ -181,19 +180,24 @@ impl CycloneDX {
     }
 }
 
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+pub struct Components {
+    pub component: Vec<Component>,
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::io::{BufReader, ErrorKind};
 
-    use crate::CycloneDX;
+    use crate::component::classification::Classification;
     use crate::CycloneDXFormatType::JSON;
+    use crate::{CycloneDX, CycloneDXFormatType, XMLCycloneDX};
     use std::fs::File;
     use std::path::PathBuf;
 
     #[test]
     fn error_if_invalid_writer() {
-        let cyclone_dx = CycloneDX::new(None, Vec::new(), Vec::new(), Vec::new());
+        let cyclone_dx = CycloneDX::new(None, None, None, Vec::new());
 
         impl std::io::Write for CycloneDX {
             fn write(&mut self, _buf: &[u8]) -> Result<usize, std::io::Error> {
@@ -206,26 +210,65 @@ mod tests {
         }
 
         // Used to to get access to the dummy Write trait above
-        let writer = Box::new(CycloneDX::new(None, Vec::new(), Vec::new(), Vec::new()));
+        let writer = Box::new(CycloneDX::new(None, None, None, Vec::new()));
         let result = CycloneDX::encode(writer, cyclone_dx, JSON);
 
         assert!(result.is_err());
     }
 
-    // #[test]
-    // pub fn can_decode() {
-    //     let reader = setup("bom-1.2.xml");
-    //
-    //     let result = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
-    //
-    //     assert!(result.metadata.is_some());
-    // }
-    //
-    // fn setup(file: &str) -> BufReader<File> {
-    //     let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    //     test_folder.push("resources/test/".to_owned() + file);
-    //     let file = File::open(test_folder);
-    //     let mut reader = BufReader::new(file.unwrap());
-    //     reader
-    // }
+    #[test]
+    pub fn can_decode() {
+        let reader = setup("bom-1.2.xml");
+
+        let result: XMLCycloneDX = yaserde::de::from_reader(reader).unwrap();
+
+        assert_eq!(
+            result.serial_number,
+            "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79"
+        );
+
+        let cyclone_dx = result.cyclonedx;
+        validate(cyclone_dx);
+    }
+
+    #[test]
+    pub fn can_decode_using_decoder() {
+        let reader = setup("bom-1.2.xml");
+
+        let cyclone_dx = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
+
+        validate(cyclone_dx);
+    }
+
+    fn validate(cyclone_dx: CycloneDX) {
+        let metadata = cyclone_dx.metadata.as_ref().unwrap();
+        assert_eq!(metadata.time_stamp, "2020-04-07T07:01:00Z");
+
+        let component = cyclone_dx.components.as_ref().unwrap();
+        assert_eq!(component.component.len(), 3);
+        assert_eq!(
+            component.component[0].name.as_ref().unwrap(),
+            "tomcat-catalina"
+        );
+        assert_eq!(
+            component.component[2].component_type,
+            Classification::Framework
+        );
+
+        let services = cyclone_dx.services.as_ref().unwrap();
+        assert_eq!(services.service.len(), 1);
+        assert_eq!(services.service[0].name, "Stock ticker service");
+        assert_eq!(
+            services.service[0].endpoints.as_ref().unwrap().endpoint[0].value,
+            "https://partner.org/api/v1/lookup"
+        );
+    }
+
+    fn setup(file: &str) -> BufReader<File> {
+        let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        test_folder.push("resources/test/".to_owned() + file);
+        let file = File::open(test_folder);
+        let mut reader = BufReader::new(file.unwrap());
+        reader
+    }
 }

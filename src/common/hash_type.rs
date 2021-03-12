@@ -2,7 +2,17 @@ use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, YaSerialize, YaDeserialize)]
-#[yaserde(rename = "hash")]
+pub struct Hashes {
+    pub hash: Vec<HashType>,
+}
+
+impl Hashes {
+    pub fn new(hash: Vec<HashType>) -> Hashes {
+        Hashes { hash }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct HashType {
     #[yaserde(attribute)]
     pub alg: HashAlg,

@@ -1,0 +1,7 @@
+<component type="application">
+    <name>Acme Application</name>
+    <version>9.1.1</version>
+    <swid tagId="swidgen-242eb18a-503e-ca37-393b-cf156ef09691_9.1.1" name="Acme Application" version="9.1.1">
+        <text content-type="text/xml" encoding="base64">text value</text>
+    </swid>
+</component>

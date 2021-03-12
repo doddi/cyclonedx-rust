@@ -9,13 +9,13 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 pub struct AttachedTextType {
     #[serde(rename = "content-type")]
     #[yaserde(rename = "content-type", attribute)]
-    content_type: Option<String>,
+    pub content_type: Option<String>,
 
     #[yaserde(attribute)]
-    encoding: Option<BomEncoding>,
+    pub encoding: Option<BomEncoding>,
 
     #[yaserde(text)]
-    value: String,
+    pub value: String,
 }
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]

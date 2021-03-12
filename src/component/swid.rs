@@ -9,21 +9,21 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 pub struct SwidType {
     #[serde(rename = "tagId")]
     #[yaserde(rename = "tagId", attribute)]
-    tag_id: String,
+    pub tag_id: String,
 
     #[yaserde(attribute)]
-    name: String,
+    pub name: String,
 
     #[yaserde(attribute)]
-    version: Option<String>,
+    pub version: Option<String>,
 
     #[serde(rename = "tagVersion")]
     #[yaserde(rename = "tagVersion", attribute)]
-    tag_version: Option<i32>,
+    pub tag_version: Option<i32>,
 
     #[yaserde(attribute)]
-    patch: Option<bool>,
+    pub patch: Option<bool>,
 
-    text: Option<AttachedTextType>,
-    url: Option<String>,
+    pub text: Option<AttachedTextType>,
+    pub url: Option<String>,
 }

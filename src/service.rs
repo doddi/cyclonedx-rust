@@ -10,32 +10,43 @@ use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+pub struct Services {
+    pub service: Vec<Service>,
+}
+
+impl Services {
+    pub fn new(service: Vec<Service>) -> Services {
+        Services { service }
+    }
+}
+
+#[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Service {
     #[serde(rename = "bom-ref")]
     #[yaserde(rename = "bom-ref", attribute)]
-    bom_ref: Option<String>,
+    pub bom_ref: Option<String>,
 
-    provider: Option<OrganizationalEntity>,
-    group: Option<String>,
-    name: String,
-    version: Option<String>,
-    description: Option<String>,
-    endpoints: Option<Endpoints>,
-    authenticated: Option<bool>,
+    pub provider: Option<OrganizationalEntity>,
+    pub group: Option<String>,
+    pub name: String,
+    pub version: Option<String>,
+    pub description: Option<String>,
+    pub endpoints: Option<Endpoints>,
+    pub authenticated: Option<bool>,
     #[serde(rename = "x-trust-boundary")]
     #[yaserde(rename = "x-trust-boundary")]
-    x_trust_boundary: Option<bool>,
-    data: Option<Classifications>,
-    licenses: Option<Licenses>,
+    pub x_trust_boundary: Option<bool>,
+    pub data: Option<Classifications>,
+    pub licenses: Option<Licenses>,
     #[serde(rename = "externalReferences")]
     #[yaserde(rename = "externalReferences")]
-    external_references: Option<ExternalReferences>,
-    services: Vec<Service>,
+    pub external_references: Option<ExternalReferences>,
+    pub services: Vec<Service>,
 }
 
 #[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct ExternalReferences {
-    reference: Vec<ExternalReference>,
+    pub reference: Vec<ExternalReference>,
 }
 
 impl ExternalReferences {
@@ -46,7 +57,7 @@ impl ExternalReferences {
 
 #[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Classifications {
-    classification: Vec<DataClassificationType>,
+    pub classification: Vec<DataClassificationType>,
 }
 
 impl Classifications {
@@ -57,7 +68,7 @@ impl Classifications {
 
 #[derive(Clone, Default, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Endpoints {
-    endpoint: Vec<EndpointType>,
+    pub endpoint: Vec<EndpointType>,
 }
 
 impl Endpoints {
@@ -69,7 +80,7 @@ impl Endpoints {
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct EndpointType {
     #[yaserde(text)]
-    value: String,
+    pub value: String,
 }
 
 impl EndpointType {
