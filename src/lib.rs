@@ -40,7 +40,7 @@
 //! An example of how to decode a CycloneDX BoM:
 //!
 //! ```
-//! use cyclonedx_rust::CycloneDX;
+//! use cyclonedx_rust::{CycloneDX, CycloneDXFormatType};
 //! use std::fs::File;
 //! use std::io::BufReader;
 //! use std::path::PathBuf;
@@ -50,7 +50,7 @@
 //! let file = File::open(test_folder);
 //! let mut reader = BufReader::new(file.unwrap());
 //!
-//! let result: CycloneDX = yaserde::de::from_reader(reader).unwrap();
+//! let result: CycloneDX = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
 //! ```
 use std::error::Error;
 use std::fmt;
