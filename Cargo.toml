@@ -3,6 +3,11 @@ name = "cyclonedx-rust"
 version = "0.1.0"
 authors = ["markdodgson <mark.dodgson@googlemail.com>"]
 edition = "2018"
+repository = "https://github.com/doddi/cyclonedx-rust"
+license-file = "LICENSE"
+license = "Apache-2.0"
+description = "A library for encoding/decoding CycloneDx BoM"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
