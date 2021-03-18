@@ -1,7 +1,62 @@
+//! #CycloneDx-Rust
+//!
+//! CycloneDx-Rust is a Crate library for encoding and decoding [CycloneDx](https://cyclonedx.org/) files in both XML and JSON format
+//! to the 1.2 spec
+//!
+//! To encode the CycloneDx you cab=n either build up the structure using the provided <X>::new() methods, passing in the parameters where necessary
+//! or make use of the builder pattern.
+//! The builder patterns are created at build time so intelli-sense may not be available. Howver, each struct, for example:
+//! ```
+//! use cyclonedx_rust::CycloneDX;
+//!
+//! CycloneDX::new(None, None, None, None);
+//! ```
+//! can be built as follows:
+//! ```
+//! use cyclonedx_rust::CycloneDXBuilder;
+//!
+//! CycloneDXBuilder::default()
+//!  .metadata(None)
+//!  .components(None)
+//!  .services(None)
+//!  .dependencies(None)
+//!  .build();
+//! ```
+//!
+//! # Encoding
+//! An example of how to encode a CycloneDX BoM to a file:
+//!
+//! ```
+//! use cyclonedx_rust::{CycloneDX, CycloneDXFormatType};
+//! use std::io::BufWriter;
+//! use std::fs::File;
+//!
+//! let mut buffer = BufWriter::new(File::create("foo.txt").unwrap());
+//! let cyclone_dx = CycloneDX::new(None, None, None, None);
+//! CycloneDX::encode(&mut buffer, cyclone_dx, CycloneDXFormatType::XML);
+//! ```
+//!
+//! # Decoding
+//! An example of how to decode a CycloneDX BoM:
+//!
+//! ```
+//! use cyclonedx_rust::CycloneDX;
+//! use std::fs::File;
+//! use std::io::BufReader;
+//! use std::path::PathBuf;
+//!
+//! let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+//! test_folder.push("resources/test/bom-1.2.xml");
+//! let file = File::open(test_folder);
+//! let mut reader = BufReader::new(file.unwrap());
+//!
+//! let result: CycloneDX = yaserde::de::from_reader(reader).unwrap();
+//! ```
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
 
+use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use yaserde::ser::Config;
@@ -24,7 +79,7 @@ const SPEC_VERSION: &'static str = "1.2";
 const DEFAULT_VERSION: &'static str = "1";
 
 #[skip_serializing_none]
-#[derive(Default, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[derive(Default, Builder, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[yaserde(rename = "bom")]
 #[serde(rename = "bom", rename_all = "camelCase")]
 pub struct CycloneDX {
