@@ -3,10 +3,11 @@ use std::fmt;
 use std::fmt::Formatter;
 
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use yaserde::ser::Config;
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-use crate::dependency_type::DependencyType;
+use crate::dependency_type::{DependencyType, DependencyTypes};
 use crate::service::Services;
 use component::Component;
 use metadata::Metadata;
@@ -21,6 +22,108 @@ const XMLNS: &'static str = "http://cyclonedx.org/schema/Bom/1.2";
 const BOM_FORMAT: &'static str = "CycloneDX";
 const SPEC_VERSION: &'static str = "1.2";
 const DEFAULT_VERSION: &'static str = "1";
+
+#[skip_serializing_none]
+#[derive(Default, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(rename = "bom")]
+#[serde(rename = "bom", rename_all = "camelCase")]
+pub struct CycloneDX {
+    // JSON only
+    #[yaserde(skip_serializing_if = "json_skip")]
+    bom_format: String,
+    #[yaserde(skip_serializing_if = "json_skip")]
+    spec_version: String,
+
+    #[yaserde(attribute)]
+    version: String,
+
+    #[yaserde(rename = "serialNumber", attribute)]
+    serial_number: String,
+
+    metadata: Option<Metadata>,
+    components: Option<Components>,
+    services: Option<Services>,
+    dependencies: Option<DependencyTypes>,
+}
+
+impl CycloneDX {
+    pub fn new(
+        metadata: Option<Metadata>,
+        components: Option<Components>,
+        services: Option<Services>,
+        dependencies: Option<DependencyTypes>,
+    ) -> Self {
+        CycloneDX {
+            bom_format: BOM_FORMAT.to_string(),
+            spec_version: SPEC_VERSION.to_string(),
+            serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
+            version: DEFAULT_VERSION.to_string(),
+            metadata,
+            components,
+            services,
+            dependencies,
+        }
+    }
+
+    pub fn decode<R>(
+        reader: R,
+        format: CycloneDXFormatType,
+    ) -> Result<CycloneDX, CycloneDXDecodeError>
+    where
+        R: std::io::Read,
+    {
+        let result: Result<CycloneDX, String> = match format {
+            CycloneDXFormatType::XML => {
+                let result: Result<CycloneDX, String> = yaserde::de::from_reader(reader);
+                match result {
+                    Ok(response) => Ok(response),
+                    Err(err) => Err(err),
+                }
+            }
+            CycloneDXFormatType::JSON => {
+                let cyclone_dx: CycloneDX = serde_json::from_reader(reader).unwrap();
+                Ok(cyclone_dx)
+            }
+        };
+
+        if result.is_err() {
+            return Err(CycloneDXDecodeError {});
+        }
+        Ok(result.unwrap())
+    }
+
+    pub fn encode<W>(
+        writer: W,
+        cyclone_dx: CycloneDX,
+        format: CycloneDXFormatType,
+    ) -> Result<(), CycloneDXEncodeError>
+    where
+        W: std::io::Write,
+    {
+        let result = match format {
+            CycloneDXFormatType::XML => {
+                let config: Config = Config {
+                    perform_indent: true,
+                    write_document_declaration: true,
+                    indent_string: None,
+                };
+                yaserde::ser::serialize_with_writer(&cyclone_dx, writer, &config);
+                Ok(())
+            }
+
+            CycloneDXFormatType::JSON => serde_json::to_writer_pretty(writer, &cyclone_dx),
+        };
+
+        if result.is_err() {
+            return Err(CycloneDXEncodeError {});
+        }
+        Ok(())
+    }
+
+    pub const fn json_skip(&self, _: &str) -> bool {
+        true
+    }
+}
 
 #[derive(PartialEq)]
 pub enum CycloneDXFormatType {
@@ -46,140 +149,6 @@ impl fmt::Display for CycloneDXDecodeError {
     }
 }
 
-#[yaserde(rename = "bom", rename_all = "camelCase")]
-#[derive(Default, YaSerialize, YaDeserialize)]
-pub struct XMLCycloneDX {
-    #[yaserde(rename = "serialNumber", attribute)]
-    serial_number: String,
-    #[yaserde(attribute)]
-    version: String,
-    // #[yaserde(attribute)]
-    // xmlns: String,
-    #[yaserde(flatten)]
-    cyclonedx: CycloneDX,
-}
-
-impl XMLCycloneDX {
-    pub fn new() -> XMLCycloneDX {
-        XMLCycloneDX {
-            serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
-            version: DEFAULT_VERSION.to_string(),
-            // xmlns: XMLNS.to_string(),
-            cyclonedx: CycloneDX::new(None, None, None, Vec::new()),
-        }
-    }
-}
-
-#[serde(rename_all = "camelCase")]
-#[derive(Serialize, Deserialize)]
-pub struct JSONCycloneDX {
-    bom_format: String,
-    spec_version: String,
-    serial_number: String,
-    version: String,
-
-    cyclonedx: CycloneDX,
-}
-
-impl JSONCycloneDX {
-    pub fn new() -> JSONCycloneDX {
-        JSONCycloneDX {
-            bom_format: BOM_FORMAT.to_string(),
-            spec_version: SPEC_VERSION.to_string(),
-            serial_number: "urn:uuid:".to_owned() + &uuid::Uuid::new_v4().to_string(),
-            version: DEFAULT_VERSION.to_string(),
-
-            cyclonedx: CycloneDX::new(None, None, None, Vec::new()),
-        }
-    }
-}
-
-#[derive(Default, Serialize, Deserialize, YaSerialize, YaDeserialize)]
-#[yaserde(flatten)]
-pub struct CycloneDX {
-    metadata: Option<Metadata>,
-    components: Option<Components>,
-    services: Option<Services>,
-    dependencies: Vec<DependencyType>,
-}
-
-impl CycloneDX {
-    pub fn new(
-        metadata: Option<Metadata>,
-        components: Option<Components>,
-        services: Option<Services>,
-        dependencies: Vec<DependencyType>,
-    ) -> CycloneDX {
-        CycloneDX {
-            metadata,
-            components,
-            services,
-            dependencies,
-        }
-    }
-
-    pub fn decode<R>(
-        reader: R,
-        format: CycloneDXFormatType,
-    ) -> Result<CycloneDX, CycloneDXDecodeError>
-    where
-        R: std::io::Read,
-    {
-        let result: Result<CycloneDX, String> = match format {
-            CycloneDXFormatType::XML => {
-                let result: Result<XMLCycloneDX, String> = yaserde::de::from_reader(reader);
-                match result {
-                    Ok(response) => Ok(response.cyclonedx),
-                    Err(err) => Err(err),
-                }
-            }
-            CycloneDXFormatType::JSON => {
-                let cyclone_dx: JSONCycloneDX = serde_json::from_reader(reader).unwrap();
-                Ok(cyclone_dx.cyclonedx)
-            }
-        };
-
-        if result.is_err() {
-            return Err(CycloneDXDecodeError {});
-        }
-        Ok(result.unwrap())
-    }
-
-    pub fn encode<W>(
-        writer: W,
-        dx: CycloneDX,
-        format: CycloneDXFormatType,
-    ) -> Result<(), CycloneDXEncodeError>
-    where
-        W: std::io::Write,
-    {
-        let result = match format {
-            CycloneDXFormatType::XML => {
-                let mut xml: XMLCycloneDX = XMLCycloneDX::new();
-                xml.cyclonedx = dx;
-                let config: Config = Config {
-                    perform_indent: true,
-                    write_document_declaration: true,
-                    indent_string: None,
-                };
-                yaserde::ser::serialize_with_writer(&xml, writer, &config);
-                Ok(())
-            }
-
-            CycloneDXFormatType::JSON => {
-                let mut json: JSONCycloneDX = JSONCycloneDX::new();
-                json.cyclonedx = dx;
-                serde_json::to_writer_pretty(writer, &json)
-            }
-        };
-
-        if result.is_err() {
-            return Err(CycloneDXEncodeError {});
-        }
-        Ok(())
-    }
-}
-
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 pub struct Components {
     pub component: Vec<Component>,
@@ -191,13 +160,14 @@ mod tests {
 
     use crate::component::classification::Classification;
     use crate::CycloneDXFormatType::JSON;
-    use crate::{CycloneDX, CycloneDXFormatType, XMLCycloneDX};
+    use crate::{CycloneDX, CycloneDXFormatType};
     use std::fs::File;
     use std::path::PathBuf;
+    use yaserde::ser::Config;
 
     #[test]
     fn error_if_invalid_writer() {
-        let cyclone_dx = CycloneDX::new(None, None, None, Vec::new());
+        let cyclone_dx = CycloneDX::new(None, None, None, None);
 
         impl std::io::Write for CycloneDX {
             fn write(&mut self, _buf: &[u8]) -> Result<usize, std::io::Error> {
@@ -210,7 +180,7 @@ mod tests {
         }
 
         // Used to to get access to the dummy Write trait above
-        let writer = Box::new(CycloneDX::new(None, None, None, Vec::new()));
+        let writer = Box::new(CycloneDX::new(None, None, None, None));
         let result = CycloneDX::encode(writer, cyclone_dx, JSON);
 
         assert!(result.is_err());
@@ -220,15 +190,14 @@ mod tests {
     pub fn can_decode() {
         let reader = setup("bom-1.2.xml");
 
-        let result: XMLCycloneDX = yaserde::de::from_reader(reader).unwrap();
+        let result: CycloneDX = yaserde::de::from_reader(reader).unwrap();
 
         assert_eq!(
             result.serial_number,
             "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79"
         );
 
-        let cyclone_dx = result.cyclonedx;
-        validate(cyclone_dx);
+        validate(result);
     }
 
     #[test]
@@ -238,6 +207,26 @@ mod tests {
         let cyclone_dx = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
 
         validate(cyclone_dx);
+    }
+
+    #[test]
+    pub fn can_encode_basic_xml() {
+        let mut writer = Vec::new();
+        let cyclone_dx = CycloneDX::new(None, None, None, None);
+        CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::XML);
+
+        let result = String::from_utf8(writer).unwrap();
+        assert!(!result.contains("CycloneDX"));
+    }
+
+    #[test]
+    pub fn can_encode_basic_json() {
+        let mut writer = Vec::new();
+        let cyclone_dx = CycloneDX::new(None, None, None, None);
+        CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::JSON);
+
+        let result = String::from_utf8(writer).unwrap();
+        assert!(result.contains("CycloneDX"));
     }
 
     fn validate(cyclone_dx: CycloneDX) {
