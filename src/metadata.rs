@@ -7,14 +7,19 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use crate::common::organization::{OrganizationalContact, OrganizationalEntity};
 use crate::component::Component;
-use crate::metadata::tool_type::{ToolType, ToolTypes};
+use crate::metadata::tool_type::ToolTypes;
 
 pub mod tool_type;
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct Metadata {
     #[serde(rename = "timestamp")]
-    #[yaserde(rename = "timestamp")]
+    #[yaserde(rename = "timestamp", prefix = "ns")]
     pub time_stamp: String,
     pub tools: Option<ToolTypes>,
     pub authors: Option<Authors>,
@@ -62,7 +67,6 @@ mod tests {
     use crate::common::organization::*;
     use crate::metadata::tool_type::*;
     use crate::metadata::Metadata;
-    use crate::CycloneDX;
     use std::fs::File;
     use std::io::BufReader;
     use std::path::PathBuf;
@@ -184,7 +188,7 @@ mod tests {
         let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_folder.push("resources/test/".to_owned() + file);
         let file = File::open(test_folder);
-        let mut reader = BufReader::new(file.unwrap());
+        let reader = BufReader::new(file.unwrap());
         reader
     }
 }

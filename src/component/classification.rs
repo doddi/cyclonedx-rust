@@ -8,8 +8,8 @@ use xml::attribute::OwnedAttribute;
 use xml::namespace::Namespace;
 use xml::writer::XmlEvent;
 use yaserde::ser::Serializer;
-use yaserde::{YaDeserialize, YaSerialize};
-use yaserde_derive::{YaDeserialize, YaSerialize};
+use yaserde::YaSerialize;
+use yaserde_derive::YaDeserialize;
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaDeserialize, EnumString)]
 #[serde(rename_all = "kebab-case")]

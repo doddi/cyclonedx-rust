@@ -19,6 +19,11 @@ pub mod scope;
 pub mod swid;
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct Component {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
@@ -32,19 +37,33 @@ pub struct Component {
     #[yaserde(rename = "bom-ref", attribute)]
     pub bom_ref: Option<String>,
 
+    #[yaserde(prefix = "ns")]
     pub supplier: Option<OrganizationalEntity>,
+    #[yaserde(prefix = "ns")]
     pub author: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub publisher: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub group: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub name: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub version: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub description: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub scope: Option<Scope>,
+    #[yaserde(prefix = "ns")]
     pub hashes: Vec<HashType>,
+    #[yaserde(prefix = "ns")]
     pub licenses: Vec<Licenses>,
+    #[yaserde(prefix = "ns")]
     pub copyright: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub purl: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub swid: Option<SwidType>,
+    #[yaserde(prefix = "ns")]
     pub modified: Option<bool>,
     pub pedigree: Option<PedigreeType>,
     pub external_references: Vec<ExternalReference>,
@@ -85,7 +104,7 @@ pub mod tests {
         let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_folder.push("resources/test/".to_owned() + file);
         let file = File::open(test_folder);
-        let mut reader = BufReader::new(file.unwrap());
+        let reader = BufReader::new(file.unwrap());
         reader
     }
 }

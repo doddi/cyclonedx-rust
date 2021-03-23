@@ -3,8 +3,15 @@ use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct OrganizationalEntity {
+    #[yaserde(prefix = "ns")]
     pub name: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub url: Vec<String>,
     pub contact: Vec<OrganizationalContact>,
 }
@@ -12,9 +19,17 @@ pub struct OrganizationalEntity {
 #[derive(
     Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
 )]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct OrganizationalContact {
+    #[yaserde(prefix = "ns")]
     pub name: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub email: Vec<String>,
+    #[yaserde(prefix = "ns")]
     pub phone: Vec<String>,
 }
 

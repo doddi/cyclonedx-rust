@@ -7,12 +7,18 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 #[derive(
     Clone, Default, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
 )]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct PedigreeType {
     ancestors: Vec<Component>,
     descendants: Vec<Component>,
     variants: Vec<Component>,
     commits: Vec<CommitType>,
     patches: Vec<PatchType>,
+    #[yaserde(prefix = "ns")]
     notes: Option<String>,
 }
 
@@ -93,18 +99,36 @@ impl Default for BomPatchClassification {
 #[derive(
     Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
 )]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct CommitType {
+    #[yaserde(prefix = "ns")]
     uid: Option<String>,
+    #[yaserde(prefix = "ns")]
     url: Option<String>,
+    #[yaserde(prefix = "ns")]
     author: Option<IdentifiableActionType>,
+    #[yaserde(prefix = "ns")]
     committer: Option<IdentifiableActionType>,
+    #[yaserde(prefix = "ns")]
     message: Option<String>,
 }
 
 #[derive(Default, Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct IdentifiableActionType {
+    #[yaserde(prefix = "ns")]
     timestamp: Option<String>,
+    #[yaserde(prefix = "ns")]
     name: Option<String>,
+    #[yaserde(prefix = "ns")]
     email: Option<String>,
 }
 

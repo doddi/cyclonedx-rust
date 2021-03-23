@@ -1,4 +1,4 @@
-use crate::common::hash_type::{HashType, Hashes};
+use crate::common::hash_type::Hashes;
 
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
@@ -16,9 +16,17 @@ impl ToolTypes {
 }
 
 #[derive(Clone, PartialEq, Debug, Builder, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct ToolType {
+    #[yaserde(prefix = "ns")]
     pub vendor: String,
+    #[yaserde(prefix = "ns")]
     pub name: String,
+    #[yaserde(prefix = "ns")]
     pub version: String,
     pub hashes: Option<Hashes>,
 }

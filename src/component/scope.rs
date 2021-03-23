@@ -2,6 +2,11 @@ use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub enum Scope {
     #[serde(rename = "required")]
     #[yaserde(rename = "required")]

@@ -8,18 +8,33 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 )]
 #[serde(rename = "licenses")]
 #[yaserde(rename = "licenses")]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct Licenses {
+    #[yaserde(prefix = "ns")]
     pub license: Vec<LicenseType>,
+    #[yaserde(prefix = "ns")]
     pub expression: Option<String>,
 }
 
 #[derive(
     Default, Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize,
 )]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct LicenseType {
+    #[yaserde(prefix = "ns")]
     pub id: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub name: Option<String>,
     pub text: Option<AttachedTextType>,
+    #[yaserde(prefix = "ns")]
     pub url: Option<String>,
 }
 
@@ -55,7 +70,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let expected = r#"<licenses><expression>EPL-2.0 OR GPL-2.0-with-classpath-exception</expression></licenses>"#;
+        let expected = r#"<licenses xmlns="http://cyclonedx.org/schema/bom/1.2"><expression>EPL-2.0 OR GPL-2.0-with-classpath-exception</expression></licenses>"#;
         let actual = yaserde::ser::to_string_with_config(
             &licenses,
             &Config {

@@ -4,12 +4,19 @@ use yaserde_derive::{YaDeserialize, YaSerialize};
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[serde(rename = "reference")]
 #[yaserde(rename = "reference")]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct ExternalReference {
     #[serde(rename = "type")]
     #[yaserde(rename = "type", attribute)]
     pub ref_type: ExternalReferenceType,
 
+    #[yaserde(prefix = "ns")]
     pub url: String,
+    #[yaserde(prefix = "ns")]
     pub comment: Option<String>,
 }
 

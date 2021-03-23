@@ -21,25 +21,37 @@ impl Services {
 }
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct Service {
     #[serde(rename = "bom-ref")]
     #[yaserde(rename = "bom-ref", attribute)]
     pub bom_ref: Option<String>,
 
+    #[yaserde(prefix = "ns")]
     pub provider: Option<OrganizationalEntity>,
+    #[yaserde(prefix = "ns")]
     pub group: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub name: String,
+    #[yaserde(prefix = "ns")]
     pub version: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub description: Option<String>,
+    #[yaserde(prefix = "ns")]
     pub endpoints: Option<Endpoints>,
+    #[yaserde(prefix = "ns")]
     pub authenticated: Option<bool>,
     #[serde(rename = "x-trust-boundary")]
-    #[yaserde(rename = "x-trust-boundary")]
+    #[yaserde(rename = "x-trust-boundary", prefix = "ns")]
     pub x_trust_boundary: Option<bool>,
     pub data: Option<Classifications>,
     pub licenses: Option<Licenses>,
     #[serde(rename = "externalReferences")]
-    #[yaserde(rename = "externalReferences")]
+    #[yaserde(rename = "externalReferences", prefix = "ns")]
     pub external_references: Option<ExternalReferences>,
     pub services: Vec<Service>,
 }
@@ -97,7 +109,6 @@ pub mod tests {
     use crate::component::external_reference::*;
     use crate::service::data_classification_type::*;
     use crate::service::data_flow_type::DataFlowType;
-    use crate::CycloneDX;
     use std::fs::File;
     use std::io::BufReader;
     use std::path::PathBuf;
@@ -248,7 +259,7 @@ pub mod tests {
         let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_folder.push("resources/test/".to_owned() + file);
         let file = File::open(test_folder);
-        let mut reader = BufReader::new(file.unwrap());
+        let reader = BufReader::new(file.unwrap());
         reader
     }
 }

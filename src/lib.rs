@@ -62,7 +62,7 @@ use serde_with::skip_serializing_none;
 use yaserde::ser::Config;
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
-use crate::dependency_type::{DependencyType, DependencyTypes};
+use crate::dependency_type::DependencyTypes;
 use crate::service::Services;
 use component::Component;
 use metadata::Metadata;
@@ -82,6 +82,11 @@ const DEFAULT_VERSION: &'static str = "1";
 #[derive(Default, Builder, Serialize, Deserialize, YaSerialize, YaDeserialize)]
 #[yaserde(rename = "bom")]
 #[serde(rename = "bom", rename_all = "camelCase")]
+#[yaserde(
+    prefix = "ns",
+    default_namespace = "ns",
+    namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
+)]
 pub struct CycloneDX {
     // JSON only
     #[yaserde(skip_serializing_if = "json_skip")]
@@ -218,7 +223,6 @@ mod tests {
     use crate::{CycloneDX, CycloneDXFormatType};
     use std::fs::File;
     use std::path::PathBuf;
-    use yaserde::ser::Config;
 
     #[test]
     fn error_if_invalid_writer() {
@@ -262,6 +266,16 @@ mod tests {
         let cyclone_dx = CycloneDX::decode(reader, CycloneDXFormatType::XML).unwrap();
 
         validate(cyclone_dx);
+    }
+
+    #[test]
+    pub fn can_recode_xml() {
+        let mut buffer = Vec::new();
+        let cyclone_dx = CycloneDX::new(None, None, None, None);
+        CycloneDX::encode(&mut buffer, cyclone_dx, CycloneDXFormatType::XML);
+        let response = CycloneDX::decode(&buffer[..], CycloneDXFormatType::XML).unwrap();
+
+        assert_eq!(response.version, "1");
     }
 
     #[test]
@@ -312,7 +326,7 @@ mod tests {
         let mut test_folder = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         test_folder.push("resources/test/".to_owned() + file);
         let file = File::open(test_folder);
-        let mut reader = BufReader::new(file.unwrap());
+        let reader = BufReader::new(file.unwrap());
         reader
     }
 }
