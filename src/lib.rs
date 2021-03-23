@@ -141,6 +141,7 @@ impl CycloneDX {
                 }
             }
             CycloneDXFormatType::JSON => {
+                unimplemented!();
                 let cyclone_dx: CycloneDX = serde_json::from_reader(reader).unwrap();
                 Ok(cyclone_dx)
             }
@@ -167,11 +168,19 @@ impl CycloneDX {
                     write_document_declaration: true,
                     indent_string: None,
                 };
-                yaserde::ser::serialize_with_writer(&cyclone_dx, writer, &config);
-                Ok(())
+                match yaserde::ser::serialize_with_writer(&cyclone_dx, writer, &config) {
+                    Ok(_) => Ok(()),
+                    Err(err) => Err(err),
+                }
             }
 
-            CycloneDXFormatType::JSON => serde_json::to_writer_pretty(writer, &cyclone_dx),
+            CycloneDXFormatType::JSON => {
+                unimplemented!();
+                match serde_json::to_writer_pretty(writer, &cyclone_dx) {
+                    Ok(_) => Ok(()),
+                    Err(err) => Err(err.to_string()),
+                }
+            }
         };
 
         if result.is_err() {
@@ -219,7 +228,7 @@ mod tests {
     use std::io::{BufReader, ErrorKind};
 
     use crate::component::classification::Classification;
-    use crate::CycloneDXFormatType::JSON;
+    use crate::CycloneDXFormatType::XML;
     use crate::{CycloneDX, CycloneDXFormatType};
     use std::fs::File;
     use std::path::PathBuf;
@@ -240,7 +249,7 @@ mod tests {
 
         // Used to to get access to the dummy Write trait above
         let writer = Box::new(CycloneDX::new(None, None, None, None));
-        let result = CycloneDX::encode(writer, cyclone_dx, JSON);
+        let result = CycloneDX::encode(writer, cyclone_dx, XML);
 
         assert!(result.is_err());
     }
@@ -288,15 +297,15 @@ mod tests {
         assert!(!result.contains("CycloneDX"));
     }
 
-    #[test]
-    pub fn can_encode_basic_json() {
-        let mut writer = Vec::new();
-        let cyclone_dx = CycloneDX::new(None, None, None, None);
-        CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::JSON);
-
-        let result = String::from_utf8(writer).unwrap();
-        assert!(result.contains("CycloneDX"));
-    }
+    // #[test]
+    // pub fn can_encode_basic_json() {
+    //     let mut writer = Vec::new();
+    //     let cyclone_dx = CycloneDX::new(None, None, None, None);
+    //     CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::JSON);
+    //
+    //     let result = String::from_utf8(writer).unwrap();
+    //     assert!(result.contains("CycloneDX"));
+    // }
 
     fn validate(cyclone_dx: CycloneDX) {
         let metadata = cyclone_dx.metadata.as_ref().unwrap();
