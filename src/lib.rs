@@ -5,7 +5,7 @@
 //!
 //! To encode the CycloneDx you can either build up the structure using the provided <X>::new() methods, passing in the parameters where necessary
 //! or make use of the builder pattern.
-//! The builder patterns are created at build time so intelli-sense may not be available. Howver, each struct, for example:
+//! The builder patterns are created at build time so intelli-sense may not be available. However, each struct, for example:
 //! ```
 //! use cyclonedx_rust::CycloneDX;
 //!
