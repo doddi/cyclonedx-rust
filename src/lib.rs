@@ -285,7 +285,9 @@ mod tests {
     pub fn can_recode_xml() {
         let mut buffer = Vec::new();
         let cyclone_dx = CycloneDX::new(None, None, None, None);
-        CycloneDX::encode(&mut buffer, cyclone_dx, CycloneDXFormatType::XML);
+        let encode_result = CycloneDX::encode(&mut buffer, cyclone_dx, CycloneDXFormatType::XML);
+        assert!(encode_result.is_ok());
+
         let response = CycloneDX::decode(&buffer[..], CycloneDXFormatType::XML).unwrap();
 
         assert_eq!(response.version, "1");
@@ -295,7 +297,8 @@ mod tests {
     pub fn can_encode_basic_xml() {
         let mut writer = Vec::new();
         let cyclone_dx = CycloneDX::new(None, None, None, None);
-        CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::XML);
+        let encode_result = CycloneDX::encode(&mut writer, cyclone_dx, CycloneDXFormatType::XML);
+        assert!(encode_result.is_ok());
 
         let result = String::from_utf8(writer).unwrap();
         assert!(!result.contains("CycloneDX"));
