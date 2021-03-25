@@ -3,7 +3,7 @@
 //! CycloneDx-Rust is a Crate library for encoding and decoding [CycloneDx](https://cyclonedx.org/) files in both XML and JSON format
 //! to the 1.2 spec
 //!
-//! To encode the CycloneDx you cab=n either build up the structure using the provided <X>::new() methods, passing in the parameters where necessary
+//! To encode the CycloneDx you can either build up the structure using the provided <X>::new() methods, passing in the parameters where necessary
 //! or make use of the builder pattern.
 //! The builder patterns are created at build time so intelli-sense may not be available. Howver, each struct, for example:
 //! ```
