@@ -30,10 +30,14 @@
 //! use cyclonedx_rust::{CycloneDX, CycloneDXFormatType};
 //! use std::io::BufWriter;
 //! use std::fs::File;
+//! use std::fs;
 //!
-//! let mut buffer = BufWriter::new(File::create("foo.txt").unwrap());
+//! const FOO_TXT: &str = "foo.txt";
+//! let mut buffer = BufWriter::new(File::create(FOO_TXT).unwrap());
 //! let cyclone_dx = CycloneDX::new(None, None, None, None);
 //! CycloneDX::encode(&mut buffer, cyclone_dx, CycloneDXFormatType::XML);
+//! // cleanup test file
+//! fs::remove_file(FOO_TXT);
 //! ```
 //!
 //! # Decoding
