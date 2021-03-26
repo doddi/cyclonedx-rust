@@ -30,6 +30,31 @@ jobs:
           command: fmt
           args: --all -- --check
 
+  dependencies:
+    name: Audit dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          profile: minimal
+          override: true
+
+      - name: Install Cargo Pants
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-pants
+
+      - name: Run cargo-pants
+        uses: actions-rs/cargo@v1
+        with:
+          command: pants
 
   test:
     name: Test
