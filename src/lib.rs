@@ -232,10 +232,13 @@ mod tests {
     use std::io::{BufReader, ErrorKind};
 
     use crate::component::classification::Classification;
+    use crate::metadata::cyclonedx_datetime::CycloneDxDateTime;
     use crate::CycloneDXFormatType::XML;
     use crate::{CycloneDX, CycloneDXFormatType};
+    use chrono::{DateTime, Utc};
     use std::fs::File;
     use std::path::PathBuf;
+    use std::str::FromStr;
 
     #[test]
     fn error_if_invalid_writer() {
@@ -316,7 +319,12 @@ mod tests {
 
     fn validate(cyclone_dx: CycloneDX) {
         let metadata = cyclone_dx.metadata.as_ref().unwrap();
-        assert_eq!(metadata.time_stamp, "2020-04-07T07:01:00Z");
+        assert_eq!(
+            metadata.time_stamp,
+            CycloneDxDateTime {
+                date: DateTime::<Utc>::from_str("2020-04-07T07:01:00Z").unwrap()
+            }
+        );
 
         let component = cyclone_dx.components.as_ref().unwrap();
         assert_eq!(component.component.len(), 3);
