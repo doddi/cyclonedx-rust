@@ -1,14 +1,15 @@
 use std::time::SystemTime;
 
-use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 use yaserde_derive::{YaDeserialize, YaSerialize};
 
 use crate::common::organization::{OrganizationalContact, OrganizationalEntity};
 use crate::component::Component;
+use crate::metadata::cyclonedx_datetime::CycloneDxDateTime;
 use crate::metadata::tool_type::ToolTypes;
 
+pub mod cyclonedx_datetime;
 pub mod tool_type;
 
 #[derive(Clone, Builder, PartialEq, Debug, Serialize, Deserialize, YaSerialize, YaDeserialize)]
@@ -18,9 +19,9 @@ pub mod tool_type;
     namespace = "ns: http://cyclonedx.org/schema/bom/1.2"
 )]
 pub struct Metadata {
-    #[serde(rename = "timestamp")]
+    #[serde(rename = "timestamp", flatten)]
     #[yaserde(rename = "timestamp", prefix = "ns")]
-    pub time_stamp: String,
+    pub time_stamp: CycloneDxDateTime,
     pub tools: Option<ToolTypes>,
     pub authors: Option<Authors>,
     pub component: Option<Component>,
@@ -36,9 +37,11 @@ impl Metadata {
         manufacture: Vec<OrganizationalEntity>,
         supplier: Vec<OrganizationalEntity>,
     ) -> Metadata {
-        let time_stamp: DateTime<Utc> = SystemTime::now().into();
+        let time_stamp = CycloneDxDateTime {
+            date: SystemTime::now().into(),
+        };
         Metadata {
-            time_stamp: time_stamp.to_rfc3339(),
+            time_stamp,
             tools,
             authors,
             component,
@@ -66,10 +69,13 @@ mod tests {
     use crate::common::hash_type::*;
     use crate::common::organization::*;
     use crate::metadata::tool_type::*;
-    use crate::metadata::Metadata;
+    use crate::metadata::{CycloneDxDateTime, Metadata};
+    use chrono::DateTime;
+    use chrono::Utc;
     use std::fs::File;
     use std::io::BufReader;
     use std::path::PathBuf;
+    use std::str::FromStr;
 
     #[test]
     fn tool_builder() {
@@ -116,7 +122,12 @@ mod tests {
 
         let response: Metadata = yaserde::de::from_reader(reader).unwrap();
 
-        assert_eq!(response.time_stamp, "2020-04-07T07:01:00Z");
+        assert_eq!(
+            response.time_stamp,
+            CycloneDxDateTime {
+                date: DateTime::<Utc>::from_str("2020-04-07T07:01:00Z").unwrap()
+            }
+        );
 
         let tool_types = response.tools.unwrap().tool;
         assert_eq!(tool_types.len(), 1);
