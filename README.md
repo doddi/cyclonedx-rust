@@ -19,4 +19,4 @@ Encoding:
 CycloneDX::encode<(writer: W, dx: CycloneDX, format: CycloneDXFormatType,) -> Result<(), CycloneDXEncodeError>
 ```
 
-Run `cargo docs --open` for more detailed documentation
+Run `cargo doc --open` for more detailed documentation
